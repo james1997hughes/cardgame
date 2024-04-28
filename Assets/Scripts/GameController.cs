@@ -129,6 +129,14 @@ public class GameController : MonoBehaviour
             
         } else
         if (turnPhase == TurnPhase.ATTACK){
+            if (!halfTurnOver){
+                halfTurnOver = true;
+            } else if(halfTurnOver){
+                halfTurnOver = false;
+
+                Debug.Log("Round "+turn.ToString()+" Over");
+                turn +=1;
+            }
             turnPhase = TurnPhase.DRAW;
             if (playerTurn){
                 Debug.Log("Turn Over! Switching to Enemy Turn");
@@ -140,14 +148,7 @@ public class GameController : MonoBehaviour
                 playerTurn = true;
                 yield return StartCoroutine(ui.handleTextDisplay(isEndOfTurn: true));
             }
-            if (!halfTurnOver){
-                halfTurnOver = true;
-            } else if(halfTurnOver){
-                halfTurnOver = false;
-
-                Debug.Log("Round "+turn.ToString()+" Over");
-                turn +=1;
-            }
+            
             
 
         }

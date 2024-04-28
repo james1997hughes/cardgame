@@ -14,20 +14,52 @@ public class UI : MonoBehaviour
     public GameObject enemyPortrait;
     public GameObject playerPortrait;
     public GameObject LargeText;
+    public GameObject InfoBox;
 
 
     TextMeshProUGUI LargeTextComponent;
+    TextMeshProUGUI infoBoxTextComponent;
     // Start is called before the first frame update
     void Start()
     {
-       LargeTextComponent = LargeText.GetComponent<TextMeshProUGUI>();
-
+        LargeTextComponent = LargeText.GetComponent<TextMeshProUGUI>();
+        infoBoxTextComponent = InfoBox.transform.Find("Canvas").Find("TurnInfoText").GetComponent<TextMeshProUGUI>(); 
         
     }
 
     void Update()
     {
+        updateInfoBox();
+    }
+
+    void updateInfoBox(){
+        string name;
+        if (controller.playerTurn){
+            name = controller.player.PlayerName;
+        } else{
+            name = controller.enemy.PlayerName;
+        }
+        string phase;
+        switch (controller.turnPhase) {
+            case GameController.TurnPhase.ATTACK:
+                phase = "Attack";
+                break;
+            case GameController.TurnPhase.DRAW:
+                phase = "Draw";
+                break;
+            case GameController.TurnPhase.SUMMON:
+                phase = "Summon";
+                break;
+            default:
+                phase = "???";
+                break;
+        }
+        string info =   "Turn:  "+controller.turn.ToString()+"\n"
+                        +name+"'s Turn\n"
+                        +phase+" Phase";
+        infoBoxTextComponent.text = info;
         
+
     }
 
     public IEnumerator handleTextDisplay(bool isEndOfTurn = false, bool isEndOfPhase = false){
