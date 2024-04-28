@@ -1,0 +1,7 @@
+.git
+.vscode
+Library
+Library/*
+Logs
+Logs/*
+Temp

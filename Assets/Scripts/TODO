@@ -1,0 +1,33 @@
+
+
+    - 
+
+    
+    - effects for spells
+    - Add summoning for enemy
+        - maybe spells too at this point, later if not
+    - Trap cards / reaction
+
+working on:     - Enemy Summoning
+
+
+Last session you: Names etc
+
+So next session: Start on enemy summoning
+
+
+                Add attacking other monsters during attack pahse
+                Add enemy summoning - simple version. Play first affordable mon in hand
+                Add enemy attacking - simple version. If a mon is summoned, attack random between player mons, player if no mons
+
+
+Known Bugs:
+    - Attacking is broken some of the time
+    - Large text has the turn text as:
+            Pierre
+            's turn
+    - Card components intersect with one another
+    - Position is wrong for cards in hand - and it really needs refactoring current logic is bad
+        - Refactor card.getHandSpace() 
+        - Cards should be children of the hand gameobject
+        - Cards should use sorting layers instead of Z values to handle overlapping
