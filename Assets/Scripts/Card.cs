@@ -262,31 +262,17 @@ public class Card : MonoBehaviour
         releasePoint.z = ui.monLane1.transform.position.z;
         if (parentHand.spellSlotCurrent - Cost >= 0 && controller.turnPhase == GameController.TurnPhase.SUMMON){ //probably seperate this out in future to parentHand.canCardBePlayed(card)
             if(ui.monLane1.GetComponent<Collider2D>().bounds.Contains(releasePoint) && !isSpell){
-                inHand = false;
-                inLane = true;
                 parentHand.setLane1(this);
-                parentHand.adjustSpellSlotCurrent(Cost);
-                restPosition = ui.monLane1.transform.position;
             }
             if(ui.monLane2.GetComponent<Collider2D>().bounds.Contains(releasePoint) && !isSpell){
-                inHand = false;
-                inLane = true;
                 parentHand.setLane2(this);
-                parentHand.adjustSpellSlotCurrent(Cost);
-                restPosition = ui.monLane2.transform.position;
             }
             if(ui.trapLane.GetComponent<Collider2D>().bounds.Contains(releasePoint) && !isMonster){
-                inHand = false;
-                inLane = true;
                 parentHand.setTrapLane(this);
-                parentHand.adjustSpellSlotCurrent(Cost);
-                restPosition = ui.trapLane.transform.position;
             }
         }
         if(ui.discardLane.GetComponent<Collider2D>().bounds.Contains(releasePoint)){
-            inHand = false;
             parentHand.discard(this);
-            restPosition = ui.discardLane.transform.position;
         }
     }
 
@@ -300,28 +286,26 @@ public class Card : MonoBehaviour
         switch(lane){
             case 1:
                 inLane = true;
-                parentHand.setLane1(this);
                 restPosition = parentHand.playerControlled? ui.monLane1.transform.position : ui.enemyMonLane1.transform.position;
                 parentHand.adjustSpellSlotCurrent(Cost);
                 break;
             case 2:
                 inLane = true;
-                parentHand.setLane2(this);
                 restPosition = parentHand.playerControlled? ui.monLane2.transform.position : ui.enemyMonLane2.transform.position;
                 parentHand.adjustSpellSlotCurrent(Cost);
                 break;
             case 3:
                 inLane = true;
-                parentHand.setTrapLane(this);
                 restPosition = parentHand.playerControlled? ui.trapLane.transform.position : ui.enemyTrapLane.transform.position;
                 parentHand.adjustSpellSlotCurrent(Cost);
                 break;
             case 4:
-                parentHand.discard(this);
+                transform.Find("Card_Front").gameObject.SetActive(false);
+                transform.Find("Card_Back").gameObject.SetActive(true);
                 restPosition = parentHand.playerControlled? ui.discardLane.transform.position : ui.enemyDiscardLane.transform.position;
                 break;
         }
-
+        StartCoroutine(returnCardAnim());
     }
 
     public virtual void SelectEffect(){

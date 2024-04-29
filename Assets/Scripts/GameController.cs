@@ -24,16 +24,10 @@ public class GameController : MonoBehaviour
     Card? PlayerTrapLaneCard;
     //Card PlayerSpellLaneCard;
 
-    Card? enemyLane1Card;
-    Card? enemyLane2Card;
-    Card? enemyTrapLaneCard;
+    Card? EnemyLane1Card;
+    Card? EnemyLane2Card;
+    Card? EnemyTrapLaneCard;
     //Card enemySpellLaneCard;
-
-    GameObject phaseText;
-    TextMeshProUGUI textComponent;
-
-    GameObject turnText;
-    TextMeshProUGUI turnTextComponent;
 
     public Hand? playerHand; //Assigned in editor
     public Hand? enemyHand; //Assigned in editor
@@ -47,10 +41,6 @@ public class GameController : MonoBehaviour
     public bool halfTurnOver = false;
     public bool AIThinking = false;
 
-    IEnumerator FadeInPhaseText;
-    IEnumerator FadeOutPhaseText;
-    IEnumerator FadeInTurnText;
-    IEnumerator FadeOutTurnText;
     bool handlingPhaseChange = false;
     
 
@@ -67,9 +57,6 @@ public class GameController : MonoBehaviour
         UIGO = GameObject.Find("UI");
         ui = UIGO.GetComponent<UI>();
         ui.controller = this;
-
-
-
 
 
         if (enemy == null || enemyHand == null || playerHand == null){
@@ -90,9 +77,18 @@ public class GameController : MonoBehaviour
     public void setTrapLanePlayer(Card card){
         PlayerTrapLaneCard = card;
     }
+    public void setLane1Enemy(Card card){
+        EnemyLane1Card = card;
+    }
+    public void setLane2Enemy(Card card){
+        EnemyLane2Card = card;
+    }
+    public void setTrapLaneEnemy(Card card){
+        EnemyTrapLaneCard = card;
+    }
 
     public void attackEnemy(float damage){
-        if (enemyLane1Card == null && enemyLane2Card == null){
+        if (EnemyLane1Card == null && EnemyLane2Card == null){
             enemy.takeHit(damage);
         }
     }
@@ -147,6 +143,7 @@ public class GameController : MonoBehaviour
         if (playerTurn){
             if (turnPhase == TurnPhase.DRAW){
                 yield return StartCoroutine(ui.handleTextDisplay(isEndOfTurn: true)); //ABIGAILS TURN
+                playerHand.adjustSpellSlotCurrent(0, max: true);
                 yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true)); //DRAW PHASE
                     playerHand.drawToMax();                                                //Draw max hand
                     yield return StartCoroutine(nextPhaseCoroutine());                   //SUMMON PHASE
@@ -158,6 +155,7 @@ public class GameController : MonoBehaviour
         }else{ // Enemy Turn
             if (turnPhase == TurnPhase.DRAW){
                 yield return StartCoroutine(ui.handleTextDisplay(isEndOfTurn: true)); //PIERRES TURN
+                enemyHand.adjustSpellSlotCurrent(0, max: true);
                 yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true)); //DRAW PHASE
                 enemyHand.drawToMax();                                                  //Draw Max Hand
                 yield return StartCoroutine(nextPhaseCoroutine());                      //SUMMON PHASE
@@ -173,9 +171,20 @@ public class GameController : MonoBehaviour
       }
 
     }
+
+    Card chooseRandomCardFromHand(Hand hand){
+        int randomIndex = UnityEngine.Random.Range(0, hand.cardsInHand.Count);
+        return hand.cardsInHand[randomIndex];
+    }
     IEnumerator EnemySummon()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f);
+        enemyHand.setLane1(chooseRandomCardFromHand(enemyHand));
+        yield return new WaitForSeconds(0.5f);
+        enemyHand.setLane2(chooseRandomCardFromHand(enemyHand));
+        yield return new WaitForSeconds(0.5f);
+        enemyHand.setTrapLane(chooseRandomCardFromHand(enemyHand));
+        yield return new WaitForSeconds(1f);
     }
     
     IEnumerator EnemyAttack()

@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using System.IO;
 using Unity.VisualScripting;
+using System.Data.Common;
 
 public class Hand : MonoBehaviour
 {
@@ -96,51 +97,66 @@ public class Hand : MonoBehaviour
         }
     }
 
-    public void adjustSpellSlotCurrent(float amount){
+    public void adjustSpellSlotCurrent(float amount, bool max = false){
         spellSlotCurrent = spellSlotCurrent - amount;
-        spellSlotContainer.setPercentage((spellSlotCurrent/spellSlotMax)*100);
-        spellSlotContainer.setCurrentSlotText(spellSlotCurrent);
+        if (max){ spellSlotCurrent = spellSlotMax;}
+        if (playerControlled){
+            spellSlotContainer.setPercentage((spellSlotCurrent/spellSlotMax)*100);
+            spellSlotContainer.setCurrentSlotText(spellSlotCurrent);
+        }
     }
 
     List<string> shuffleDeck(List<string> deck){
         return deck.OrderBy(_ => UnityEngine.Random.value).ToList();
     }
     public void setLane1(Card card){
-        if(!cardsInHand.Remove(card)){
-            Debug.Log("Card failed to remove!");
-        };
         if(playerControlled){
             game.setLane1Player(card);
+        }else{
+            game.setLane1Enemy(card);
         }
-        //drawCards(1);
-    }
-    public void setLane2(Card card){
+
+        card.playCard(1);
+
         if(!cardsInHand.Remove(card)){
             Debug.Log("Card failed to remove!");
         };
+    }
+    public void setLane2(Card card){
         if(playerControlled){
             game.setLane2Player(card);
         } else {
-
+            game.setLane2Enemy(card);
         }
-        //drawCards(1);
+
+        card.playCard(2);
+
+        if(!cardsInHand.Remove(card)){
+            Debug.Log("Card failed to remove!");
+        };
     }
 
     public void setTrapLane(Card card){
+        if(playerControlled){
+            game.setTrapLanePlayer(card);
+        }else{
+            game.setTrapLaneEnemy(card);
+        }
+
+        card.playCard(3);
+
         if(!cardsInHand.Remove(card)){
             Debug.Log("Card failed to remove!");
         };
-        if(playerControlled){
-            game.setTrapLanePlayer(card);
-        }else{}
-        //drawCards(1);
     }
 
     public void discard(Card card){
+        card.playCard(4);
+        
         if(!cardsInHand.Remove(card)){
             Debug.Log("Card failed to remove!");
         };
-        //drawCards(1);
+        drawCards(1);
     }
 
     // Update is called once per frame
