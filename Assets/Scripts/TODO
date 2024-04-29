@@ -23,7 +23,7 @@ So next session: Start on enemy summoning
 
 Known Bugs:
     - Attacking is broken some of the time
-    - Large text has the turn text as:
+    - Large text has the turn text as
             Pierre
             's turn
     - Card components intersect with one another

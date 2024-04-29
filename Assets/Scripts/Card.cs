@@ -230,7 +230,9 @@ public class Card : MonoBehaviour
                 Vector3 dragPos = new Vector3(screenPoint.x, screenPoint.y, transform.position.z);
                 gameObject.transform.position = dragPos;
             }
-        }else if (dragging && !returning){
+        }
+        
+        else if (dragging && !returning){
             //On release of dragged card:
                 if (inHand){
                     Debug.Log("Checking lane bounds");
@@ -286,6 +288,40 @@ public class Card : MonoBehaviour
             parentHand.discard(this);
             restPosition = ui.discardLane.transform.position;
         }
+    }
+
+    public void playCard(int lane){
+        //AI play
+        //Lane: 1=1, 2=2, 3=trap, 4=discard
+        inHand = false;
+        transform.Find("Card_Front").gameObject.SetActive(true);
+        transform.Find("Card_Back").gameObject.SetActive(false);
+        
+        switch(lane){
+            case 1:
+                inLane = true;
+                parentHand.setLane1(this);
+                restPosition = parentHand.playerControlled? ui.monLane1.transform.position : ui.enemyMonLane1.transform.position;
+                parentHand.adjustSpellSlotCurrent(Cost);
+                break;
+            case 2:
+                inLane = true;
+                parentHand.setLane2(this);
+                restPosition = parentHand.playerControlled? ui.monLane2.transform.position : ui.enemyMonLane2.transform.position;
+                parentHand.adjustSpellSlotCurrent(Cost);
+                break;
+            case 3:
+                inLane = true;
+                parentHand.setTrapLane(this);
+                restPosition = parentHand.playerControlled? ui.trapLane.transform.position : ui.enemyTrapLane.transform.position;
+                parentHand.adjustSpellSlotCurrent(Cost);
+                break;
+            case 4:
+                parentHand.discard(this);
+                restPosition = parentHand.playerControlled? ui.discardLane.transform.position : ui.enemyDiscardLane.transform.position;
+                break;
+        }
+
     }
 
     public virtual void SelectEffect(){

@@ -1,4 +1,6 @@
 #nullable enable
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+
 
 using System;
 using System.Collections;
@@ -98,118 +100,94 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (turn > 0){
-            handleGame();
-        }
+
     }
 
     public void nextPhase(){
-        AIThinking = false;
-        if (!handlingPhaseChange){
+        if (playerTurn){
             StartCoroutine(nextPhaseCoroutine());
         }
     }
+
     IEnumerator nextPhaseCoroutine(){
-        handlingPhaseChange = true;
-        Debug.Log("Next phase");
+        if (!handlingPhaseChange){
+            handlingPhaseChange = true;
+            Debug.Log("Next phase");
 
-
-        
-        if (turnPhase == TurnPhase.DRAW){
-            if (!playerTurn){
-                enemyHand.drawToMax();
+            if (turnPhase == TurnPhase.DRAW){
+                turnPhase = TurnPhase.SUMMON;
+                yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true));
+            } else if (turnPhase == TurnPhase.SUMMON){
+                turnPhase = TurnPhase.ATTACK;
+                yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true));                
+            } else if (turnPhase == TurnPhase.ATTACK){
+                turnPhase = TurnPhase.DRAW;
+                handleEndOfTurn();
             }
-            turnPhase = TurnPhase.SUMMON;
-            yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true));
-            
-        } else
-        if (turnPhase == TurnPhase.SUMMON){
-            turnPhase = TurnPhase.ATTACK;
-            yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true));
-            
-        } else
-        if (turnPhase == TurnPhase.ATTACK){
-            if (!halfTurnOver){
-                halfTurnOver = true;
-            } else if(halfTurnOver){
-                halfTurnOver = false;
 
-                Debug.Log("Round "+turn.ToString()+" Over");
-                turn +=1;
-            }
-            turnPhase = TurnPhase.DRAW;
-            if (playerTurn){
-                Debug.Log("Turn Over! Switching to Enemy Turn");
-                playerTurn = false;
-                yield return StartCoroutine(ui.handleTextDisplay(isEndOfTurn: true));
-                
-            }else {
-                Debug.Log("Turn Over! Switching to Player Turn");
-                playerTurn = true;
-                yield return StartCoroutine(ui.handleTextDisplay(isEndOfTurn: true));
-            }
-            
-            
-
+            handlingPhaseChange = false;
         }
-        handlingPhaseChange = false;
     }
-
-
-
-    IEnumerator endofRound(){
-        turnPhase = TurnPhase.DRAW;
-        float time = 0f;
-        while(time < 1f){
-            float t = time / 1;;
-            time += Time.deltaTime;
-            yield return null;
+    void handleEndOfTurn(){
+        if (!halfTurnOver){
+            halfTurnOver = true;
+        } else if(halfTurnOver){
+            halfTurnOver = false;
+            turn +=1;
+        }
+        if (playerTurn){
+            playerTurn = false;
+        }else {
+            playerTurn = true;
         }
     }
 
-    void handleGame(){
+    IEnumerator handleGame(){
+      while(gameRunning){
         if (playerTurn){
             if (turnPhase == TurnPhase.DRAW){
-                playerHand.drawToMax();
-                nextPhase();
+                yield return StartCoroutine(ui.handleTextDisplay(isEndOfTurn: true)); //ABIGAILS TURN
+                yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true)); //DRAW PHASE
+                    playerHand.drawToMax();                                                //Draw max hand
+                    yield return StartCoroutine(nextPhaseCoroutine());                   //SUMMON PHASE
             } else if(turnPhase == TurnPhase.SUMMON){
                 //Do nothing, wait for player to summon
             } else if(turnPhase == TurnPhase.ATTACK){
                 //Do nothing, wait for player to attack
             }
-
-
         }else{ // Enemy Turn
             if (turnPhase == TurnPhase.DRAW){
-                nextPhase();
-                
-            } else if(turnPhase == TurnPhase.SUMMON && !AIThinking){
-                AIThinking = true;
-                StartCoroutine(EnemySummon());
-                
-            } else if(turnPhase == TurnPhase.ATTACK && !AIThinking){
-                AIThinking = true;
-                StartCoroutine(EnemyAttack());
+                yield return StartCoroutine(ui.handleTextDisplay(isEndOfTurn: true)); //PIERRES TURN
+                yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true)); //DRAW PHASE
+                enemyHand.drawToMax();                                                  //Draw Max Hand
+                yield return StartCoroutine(nextPhaseCoroutine());                      //SUMMON PHASE
+            } else if(turnPhase == TurnPhase.SUMMON){
+                yield return StartCoroutine(EnemySummon());
+                yield return StartCoroutine(nextPhaseCoroutine());                      //ATTACK PHASE       
+            } else if(turnPhase == TurnPhase.ATTACK){
+                yield return StartCoroutine(EnemyAttack());
+                yield return StartCoroutine(nextPhaseCoroutine());
             }
         }
+        yield return null;
+      }
 
     }
     IEnumerator EnemySummon()
     {
-        yield return new WaitForSeconds(1f);
-        nextPhase();
+        yield return new WaitForSeconds(2f);
     }
     
     IEnumerator EnemyAttack()
     {
         yield return new WaitForSeconds(1f);
-        nextPhase();
     }
 
     public void startGame(){
         Debug.Log("Starting Game!");
         turn = 1;
         gameRunning = true;
+        StartCoroutine(handleGame());
     }
 
     public void handlePlayerDeath(){

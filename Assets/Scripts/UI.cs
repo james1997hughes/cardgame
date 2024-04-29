@@ -11,6 +11,11 @@ public class UI : MonoBehaviour
     public GameObject monLane2;
     public GameObject trapLane;
     public GameObject discardLane;
+
+    public GameObject enemyMonLane1;
+    public GameObject enemyMonLane2;
+    public GameObject enemyTrapLane;
+    public GameObject enemyDiscardLane;
     public GameObject enemyPortrait;
     public GameObject playerPortrait;
     public GameObject LargeText;
@@ -68,7 +73,6 @@ public class UI : MonoBehaviour
         }
         if (isEndOfTurn){
             yield return StartCoroutine(endTurnText());
-            yield return StartCoroutine(endPhaseText());
         }
     }
 
