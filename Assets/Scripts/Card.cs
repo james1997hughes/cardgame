@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class Card : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class Card : MonoBehaviour
     public virtual float Cost{get;set;}
 
 
+    public int cardNumber;
     public bool isMonster = false;
     public bool isSpell = false;
     public bool canBeTrap = false;
@@ -70,13 +72,15 @@ public class Card : MonoBehaviour
 
     //Gameobject components
     BoxCollider2D boxCollider;
+    public SortingGroup sortingGroup;
 
-    public void setProps(int handPos, Hand parent, GameController control, GameObject portraitBg){
+    public void setProps(int handPos, Hand parent, GameController control, GameObject portraitBg, int numberCardsDrawn){
         PositionInHand = handPos;
         parentHand = parent;
         controller = control;
         portraitBackground = portraitBg;
         inHand = true;
+        cardNumber = numberCardsDrawn;
     }
 
     void setMonster(bool i){
@@ -96,6 +100,7 @@ public class Card : MonoBehaviour
     {
         UIGO = GameObject.Find("UI");
         ui = UIGO.GetComponent<UI>();
+        
         gameObject.transform.localScale = defaultScale;
         raiseCoro = RaiseCard();
         lowerCoro = LowerCard();
@@ -183,6 +188,26 @@ public class Card : MonoBehaviour
         dealCard();
     }
 
+    public void fixText(){
+        transform.Find("Card_Front").Find("Canvas").GetComponent<Canvas>().sortingLayerName = sortingGroup.sortingLayerName;
+        transform.Find("Card_Front").Find("Canvas").GetComponent<Canvas>().sortingOrder = sortingGroup.sortingOrder +1;
+    }
+    public void SetOrderRecursively(Transform parentTransform, int newOrder)
+    {
+        foreach (Transform child in parentTransform)
+        {
+            // Check if the child has a SpriteRenderer component
+            SpriteRenderer spriteRenderer = child.GetComponent<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.sortingOrder = newOrder;
+            }
+
+            // Recursively call this function for each child
+            SetOrderRecursively(child, newOrder);
+        }
+    }
+
     Vector3 getHandSpace(){
         if(parentHand.playerControlled){
             return new Vector3(-5.8f + (2f*PositionInHand),lowery, -1f + (0.1f*PositionInHand));
@@ -218,11 +243,14 @@ public class Card : MonoBehaviour
         }
         returning = false;
     }
+    
 
     void Update()
     {
         if (mouseDown && parentHand.playerControlled){
             if (Vector3.Distance(Input.mousePosition, mousePosAtDown) > 50){
+                sortingGroup.sortingLayerName = "cards_active";
+                fixText();
                 dragging = true;
                 StopCoroutine(lowerCoro);
                 StopCoroutine(raiseCoro);
@@ -234,6 +262,8 @@ public class Card : MonoBehaviour
         
         else if (dragging && !returning){
             //On release of dragged card:
+                    sortingGroup.sortingLayerName = "cards_rest";
+                    fixText();
                 if (inHand){
                     Debug.Log("Checking lane bounds");
                     checkLaneBounds();
@@ -242,7 +272,6 @@ public class Card : MonoBehaviour
                     checkAttackBounds();
                 }
                 StartCoroutine(returnCardAnim());
-                
                 dragging = false;
             }
         
@@ -282,7 +311,10 @@ public class Card : MonoBehaviour
         inHand = false;
         transform.Find("Card_Front").gameObject.SetActive(true);
         transform.Find("Card_Back").gameObject.SetActive(false);
-        
+        parentHand.numberCardsPlayed += 1;
+        sortingGroup.sortingLayerName = "cards_played";
+        sortingGroup.sortingOrder = parentHand.numberCardsPlayed;
+        fixText();
         switch(lane){
             case 1:
                 inLane = true;
@@ -321,7 +353,10 @@ public class Card : MonoBehaviour
 
     IEnumerator RaiseCard(){
         gameObject.transform.localScale = highlightScale;
-        gameObject.transform.position = gameObject.transform.position - new Vector3(0f,0f, 1f);
+        //gameObject.transform.position = gameObject.transform.position - new Vector3(0f,0f, 1f);
+        sortingGroup.sortingLayerName = "cards_active";
+        sortingGroup.sortingOrder = cardNumber + 100;
+        fixText();
         while (gameObject.transform.position.y != raisedy){
 
             if (gameObject.transform.position.y > raisedy){gameObject.transform.position = new Vector3(gameObject.transform.position.x, raisedy, gameObject.transform.position.z);}
@@ -335,7 +370,10 @@ public class Card : MonoBehaviour
 
     IEnumerator LowerCard(){
         gameObject.transform.localScale = defaultScale;
-        gameObject.transform.position = gameObject.transform.position + new Vector3(0f,0f, 1f);
+       // gameObject.transform.position = gameObject.transform.position + new Vector3(0f,0f, 1f);
+        sortingGroup.sortingLayerName = "cards_active";
+        sortingGroup.sortingOrder = cardNumber;
+        fixText();
         while (gameObject.transform.position.y != lowery){
 
             if (gameObject.transform.position.y < lowery){gameObject.transform.position = new Vector3(gameObject.transform.position.x, lowery, gameObject.transform.position.z);}

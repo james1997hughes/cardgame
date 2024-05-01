@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System.IO;
+using UnityEngine.Rendering;
 using Unity.VisualScripting;
 using System.Data.Common;
 
@@ -18,6 +19,9 @@ public class Hand : MonoBehaviour
 
     public bool playerControlled;
     public int maxCardsInHand;
+
+    public int numberCardsDrawn;
+    public int numberCardsPlayed;
 
     public float Health;
     public float spellSlotMax;
@@ -35,6 +39,8 @@ public class Hand : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        numberCardsDrawn = 0;
+        numberCardsPlayed = 0;
         maxCardsInHand = 5;
         monPrefab = Resources.Load<GameObject>("Prefabs/MonsterCardPrefab"); //need to add spell
         spellCardSprite = Resources.Load<Sprite>("spell_card_blank");
@@ -75,6 +81,7 @@ public class Hand : MonoBehaviour
                 int lastIndex = cardsInDeck.Count - 1; // Index of the last item
                 string poppedCard = cardsInDeck[lastIndex]; // Retrieve the last card
                 cardsInDeck.RemoveAt(lastIndex); 
+                numberCardsDrawn += 1;
                 GameObject cardGO = Instantiate(monPrefab, new Vector2(0,0), Quaternion.identity);
                 var added = (Card)cardGO.AddComponent(Type.GetType(poppedCard));
                 if (added.isSpell){
@@ -83,7 +90,12 @@ public class Hand : MonoBehaviour
                     Destroy(cardGO.transform.Find("Card_Front").Find("Card_Stats").gameObject);
                 }
                 int index= cardsInHand.Count-1;
-                added.setProps(index, this, game, grassPrefab);
+                added.setProps(index, this, game, grassPrefab, numberCardsDrawn);
+                added.sortingGroup = added.gameObject.GetComponent<SortingGroup>();
+                Debug.Log(added.sortingGroup.sortingLayerName);
+                added.sortingGroup.sortingLayerName = "cards_rest";
+                added.sortingGroup.sortingOrder = numberCardsDrawn;
+                added.fixText();
                 cardsInHand.Add(added);
             }
             resetCardsInHand();

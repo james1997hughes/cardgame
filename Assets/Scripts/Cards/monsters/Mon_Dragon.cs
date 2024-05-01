@@ -36,6 +36,7 @@ public class Mon_Dragon : Card
 
     public override void SelectEffect(){
         Debug.Log("MothSelected");
+        StartCoroutine(SelectAnimation());
     }
     public override void PlayEffect(){
         Debug.Log("MothPlayed");
@@ -43,6 +44,11 @@ public class Mon_Dragon : Card
     public override void SpellEffect(){
         //maybe throw
         return;
+    }
+
+
+    IEnumerator SelectAnimation(){
+        yield return true;
     }
 
 }
