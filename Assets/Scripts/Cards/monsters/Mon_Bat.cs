@@ -23,13 +23,13 @@ public class Mon_Bat : Card
         canBeTrap = false;
 
         CardName = "Bat";
-        CardDescription = "+1 Card HP on Attack";
+        CardDescription = "+1 Player HPon Attack";
         PlayEffectDescription = "Summons monster to field";
-        HP = 11f;
-        MonAtk = 7f;
-        Def = 9f;
+        HP = 1f;
+        MonAtk = 2f;
+        Def = 2f;
         PlayerAtk = 2f;
-        Cost = 4f;
+        Cost = 1f;
     }
 
 
@@ -38,6 +38,7 @@ public class Mon_Bat : Card
         Debug.Log("MothSelected");
     }
     public override void PlayEffect(){
+        //+1 player hp
         Debug.Log("MothPlayed");
     }
     public override void SpellEffect(){

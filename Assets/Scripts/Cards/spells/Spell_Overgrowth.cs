@@ -1,12 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class Mon_Eagle : Card
+public class Spell_Overgrowth : Card
 {
-    
     public override string CardName {get;set;}
     public override string CardDescription {get;set;}
     public override string PlayEffectDescription {get;set;}
@@ -17,33 +14,31 @@ public class Mon_Eagle : Card
     public override float Cost {get;set;}
     void Awake(){
 
-        this.subjectSprite = Resources.LoadAll<Sprite>("monsters")[6];
-        isMonster = true;
-        isSpell = false;
+        this.subjectSprite = Resources.LoadAll<Sprite>("spells")[19];
+        isMonster = false;
+        isSpell = true;
         canBeTrap = false;
 
-        CardName = "Eagle";
-        CardDescription = "+1 Spell slot next turn";
-        PlayEffectDescription = "Summons monster to field";
-        HP = 2f;
-        MonAtk = 5f;
-        Def = 4f;
-        PlayerAtk = 3f;
-        Cost = 4f;
+        CardName = "Overgrowth";
+        CardDescription = "+1 MonHP";
+        PlayEffectDescription = "+1 MonHP";
+        HP = 0f;
+        MonAtk = 0f;
+        Def = 0f;
+        PlayerAtk = 0f;
+        Cost = 2f;
     }
 
 
 
     public override void SelectEffect(){
-        Debug.Log("MothSelected");
-    }
-    public override void PlayEffect(){
-        //+1 spell slot next turn
-        Debug.Log("MothPlayed");
-    }
-    public override void SpellEffect(){
-        //maybe throw
-        return;
+        Debug.Log("Spell selected!!");
     }
 
+    public override void PlayEffect(){
+        Debug.Log("Spell Played!!");
+    }
+    public override void SpellEffect(){
+        Debug.Log("Spell effect triggered!");
+    }
 }

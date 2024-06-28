@@ -20,8 +20,8 @@ public class Spell_Sliceup : Card
         canBeTrap = false;
 
         CardName = "Slice Up";
-        CardDescription = "+1 Attack to Monster";
-        PlayEffectDescription = "+1 Attack to Monster";
+        CardDescription = "+1 MonAtk permanently";
+        PlayEffectDescription = "+1 MonAtk permanently";
         HP = 0f;
         MonAtk = 0f;
         Def = 0f;

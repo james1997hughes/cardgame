@@ -4,7 +4,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Mon_Eagle : Card
+public class Mon_Spider : Card
 {
     
     public override string CardName {get;set;}
@@ -17,29 +17,29 @@ public class Mon_Eagle : Card
     public override float Cost {get;set;}
     void Awake(){
 
-        this.subjectSprite = Resources.LoadAll<Sprite>("monsters")[6];
+        this.subjectSprite = Resources.LoadAll<Sprite>("monsters")[3];
         isMonster = true;
         isSpell = false;
         canBeTrap = false;
 
-        CardName = "Eagle";
-        CardDescription = "+1 Spell slot next turn";
+        CardName = "Spider";
+        CardDescription = "Use spell slot to attack twice";
         PlayEffectDescription = "Summons monster to field";
         HP = 2f;
-        MonAtk = 5f;
-        Def = 4f;
-        PlayerAtk = 3f;
-        Cost = 4f;
+        MonAtk = 3f;
+        Def = 2f;
+        PlayerAtk = 2f;
+        Cost = 2f;
     }
 
 
 
     public override void SelectEffect(){
-        Debug.Log("MothSelected");
+        Debug.Log("SpooderSelected");
     }
     public override void PlayEffect(){
-        //+1 spell slot next turn
-        Debug.Log("MothPlayed");
+        //attack twice if use spell slot
+        Debug.Log("SpooderPlayed");
     }
     public override void SpellEffect(){
         //maybe throw
