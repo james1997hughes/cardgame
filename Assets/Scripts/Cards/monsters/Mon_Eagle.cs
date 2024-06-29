@@ -25,27 +25,29 @@ namespace Cards{
             canBeTrap = false;
 
             CardName = "Eagle";
-            CardDescription = "+1 Card HP on Attack";
+            CardDescription = "+1 Spell slot next turn";
             PlayEffectDescription = "Summons monster to field";
-            HP = 5f;
+            HP = 2f;
             MonAtk = 5f;
-            Def = 5f;
-            PlayerAtk = 2f;
-            Cost = 1f;
+            Def = 4f;
+            PlayerAtk = 3f;
+            Cost = 4f;
         }
 
 
 
-        public override void SelectEffect(){
-            Debug.Log("MothSelected");
-        }
-        public override void PlayEffect(){
-            Debug.Log("MothPlayed");
-        }
-        public override void SpellEffect(){
-            //maybe throw
-            return;
-        }
-
+    public override void SelectEffect(){
+        Debug.Log("MothSelected");
     }
+    public override void PlayEffect(){
+        //+1 spell slot next turn
+        Debug.Log("MothPlayed");
+    }
+    public override void SpellEffect(){
+        //maybe throw
+        return;
+    }
+
+}
+
 }

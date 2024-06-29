@@ -24,28 +24,29 @@ namespace Cards{
             isSpell = false;
             canBeTrap = false;
 
-            CardName = "Bat";
-            CardDescription = "+1 Card HP on Attack";
-            PlayEffectDescription = "Summons monster to field";
-            HP = 11f;
-            MonAtk = 7f;
-            Def = 9f;
-            PlayerAtk = 2f;
-            Cost = 4f;
-        }
+        CardName = "Bat";
+        CardDescription = "+1 Player HPon Attack";
+        PlayEffectDescription = "Summons monster to field";
+        HP = 1f;
+        MonAtk = 2f;
+        Def = 2f;
+        PlayerAtk = 2f;
+        Cost = 1f;
+    }
 
 
 
-        public override void SelectEffect(){
-            Debug.Log("MothSelected");
-        }
-        public override void PlayEffect(){
-            Debug.Log("MothPlayed");
-        }
-        public override void SpellEffect(){
-            //maybe throw
-            return;
-        }
+    public override void SelectEffect(){
+        Debug.Log("MothSelected");
+    }
+    public override void PlayEffect(){
+        //+1 player hp
+        Debug.Log("MothPlayed");
+    }
+    public override void SpellEffect(){
+        //maybe throw
+        return;
+    }
 
     }
 }
