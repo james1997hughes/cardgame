@@ -8,6 +8,9 @@ onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
+	"last_search.310DEAF3" = "h:t:RectTransform #m_SizeDelta.y:653.79"
+	"OpenInspectorPreview.310DEAF3" = "0"
+	"currentGroup.310DEAF3" = "all"
 }
 providers = {
 	asset = {

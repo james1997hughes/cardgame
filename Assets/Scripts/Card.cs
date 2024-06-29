@@ -11,13 +11,8 @@ public class Card : MonoBehaviour
 
     /*
         This class is a little bloated
-        I chose to do animation & "can this be played in this lane" logic here
-        It is also the parent class of all individual cards.
-        It perhaps should be somewhere else, but I don't think it's that bad.
-        When a card is played to a Lane, it triggers a Gamecontroller method and stores lanes there
-        This is good. In Gamecontroller, main game logic - actions in each phase - is done
-        Main concern for this class is that I wrote it as "Player-owned card" rather than generic "Card"
-        So some checks will need to be implemented around animations for enemy owned cards
+        But fixing it is a lot of work
+        If it gets bad enough to hinder progress, I will fix
     */
     public virtual string CardName {get;set;}
     public virtual string CardDescription {get;set;}
@@ -29,6 +24,7 @@ public class Card : MonoBehaviour
     public virtual float Cost{get;set;}
 
 
+    public bool inGame;
     public int cardNumber;
     public bool isMonster = false;
     public bool isSpell = false;
@@ -81,6 +77,12 @@ public class Card : MonoBehaviour
         portraitBackground = portraitBg;
         inHand = true;
         cardNumber = numberCardsDrawn;
+        inGame = true;
+    }
+    public void setPropsInspect(GameObject portraitBg){
+        portraitBackground = portraitBg;
+        inHand = false;
+        inGame = false;
     }
 
     void setMonster(bool i){
@@ -98,19 +100,6 @@ public class Card : MonoBehaviour
 
     void Start()
     {
-        UIGO = GameObject.Find("UI");
-        ui = UIGO.GetComponent<UI>();
-        
-        gameObject.transform.localScale = defaultScale;
-        raiseCoro = RaiseCard();
-        lowerCoro = LowerCard();
-
-        if(parentHand.playerControlled){
-            InitialSpawn = new Vector3(8.5f, -2.67f, -0.01f); //Approximately on top of the deck
-        }else{
-            InitialSpawn = new Vector3(-8f,2.5f,-0.01f);
-        }
-        restPosition = getHandSpace();
         
         // Set Name
         GameObject textGO = transform.Find("Card_Front").Find("Canvas").Find("TextGO").gameObject;
@@ -171,13 +160,23 @@ public class Card : MonoBehaviour
             Destroy(transforms[1].gameObject);
         }
 
+        if (inGame){
+            SetupCardInPlay();
+            dealCard();
+        }
+    }
 
-
-
+    void SetupCardInPlay(){
+        UIGO = GameObject.Find("UI");
+        ui = UIGO.GetComponent<UI>();
+        
         boxCollider = gameObject.AddComponent<BoxCollider2D>();
         boxCollider.offset = new Vector2(0,-2.2f);
         boxCollider.size = new Vector2(2.25f, 8f);
-
+        
+        gameObject.transform.localScale = defaultScale;
+        raiseCoro = RaiseCard();
+        lowerCoro = LowerCard();
         if (parentHand.playerControlled){
             transform.Find("Card_Front").gameObject.SetActive(true);
         }else{
@@ -185,7 +184,12 @@ public class Card : MonoBehaviour
             transform.Find("Card_Back").gameObject.SetActive(true);
         }
 
-        dealCard();
+        if(parentHand.playerControlled){
+            InitialSpawn = new Vector3(8.5f, -2.67f, -0.01f); //Approximately on top of the deck
+        }else{
+            InitialSpawn = new Vector3(-8f,2.5f,-0.01f);
+        }
+        restPosition = getHandSpace();
     }
 
     public void fixText(){
@@ -390,27 +394,31 @@ public class Card : MonoBehaviour
         //Probably have a Y position movement function running when y is not the hand default to a value N
         //on mouse enter, set N = -1.74f, on mouse exit set N=-3.74f
         //but who cares idk
-        if (inHand && !selected && !dragging && !returning && parentHand.playerControlled){
-            StopCoroutine(raiseCoro);
-            StopCoroutine(lowerCoro);
-            raiseCoro = RaiseCard();
+        if (inGame){
+            if (inHand && !selected && !dragging && !returning && parentHand.playerControlled){
+                StopCoroutine(raiseCoro);
+                StopCoroutine(lowerCoro);
+                raiseCoro = RaiseCard();
 
-            restPosition.y = raisedy;
+                restPosition.y = raisedy;
 
-            StartCoroutine(raiseCoro);
+                StartCoroutine(raiseCoro);
+            }
         }
     }
 
     void OnMouseExit() {
-        if (inHand && !selected && parentHand.playerControlled){
-            if (!dragging && !returning){
-                StopCoroutine(raiseCoro);
-                StopCoroutine(lowerCoro);
-                lowerCoro = LowerCard();
+        if (inGame){
+            if (inHand && !selected && parentHand.playerControlled){
+                if (!dragging && !returning){
+                    StopCoroutine(raiseCoro);
+                    StopCoroutine(lowerCoro);
+                    lowerCoro = LowerCard();
 
-                StartCoroutine(lowerCoro);
+                    StartCoroutine(lowerCoro);
+                }
+                restPosition.y = lowery;
             }
-            restPosition.y = lowery;
         }
         
     }

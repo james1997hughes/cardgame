@@ -59,6 +59,15 @@ TagManager:
   - name: Card_Outlines
     uniqueID: 2450284659
     locked: 0
+  - name: cards_rest
+    uniqueID: 946100867
+    locked: 0
+  - name: cards_played
+    uniqueID: 2055555685
+    locked: 0
+  - name: cards_active
+    uniqueID: 3957310175
+    locked: 0
   - name: TOP
     uniqueID: 2900204119
     locked: 0

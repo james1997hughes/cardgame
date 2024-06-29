@@ -26,10 +26,6 @@ public class Hand : MonoBehaviour
     public float Health;
     public float spellSlotMax;
     public float spellSlotCurrent;
-
-
-
-
     GameObject monPrefab;
     GameObject grassPrefab;
     Sprite spellCardSprite;
@@ -83,7 +79,8 @@ public class Hand : MonoBehaviour
                 cardsInDeck.RemoveAt(lastIndex); 
                 numberCardsDrawn += 1;
                 GameObject cardGO = Instantiate(monPrefab, new Vector2(0,0), Quaternion.identity);
-                var added = (Card)cardGO.AddComponent(Type.GetType(poppedCard));
+                var added = (Card)cardGO.AddComponent(Type.GetType("Cards."+poppedCard));
+                Debug.Log(poppedCard);
                 if (added.isSpell){
                     cardGO.transform.Find("Card_Front").Find("Card_Base").GetComponent<SpriteRenderer>().sprite = spellCardSprite;
                     cardGO.transform.Find("Card_Front").Find("Symbol").GetComponent<SpriteRenderer>().sprite = reactiveSymbol;
