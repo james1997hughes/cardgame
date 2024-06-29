@@ -90,6 +90,7 @@ public class GameController : MonoBehaviour
     public void attackEnemy(float damage){
         if (EnemyLane1Card == null && EnemyLane2Card == null){
             enemy.takeHit(damage);
+            // kacpers code below to check if effect is permanent     
         }
     }
 

@@ -12,6 +12,7 @@ public class Mon_Deer : Card
     public override string CardName {get;set;}
     public override string CardDescription {get;set;}
     public override string PlayEffectDescription {get;set;}
+    public override bool effectPermanent {get;set;}
     public override float HP {get;set;}
     public override float MonAtk {get;set;}
     public override float PlayerAtk {get;set;}
@@ -30,6 +31,7 @@ public class Mon_Deer : Card
             isMonster = true;
             isSpell = false;
             canBeTrap = false;
+            effectPermanent = false;
 
             CardName = "Deer";
             CardDescription = "+1 Def on Attack";
@@ -50,8 +52,6 @@ public class Mon_Deer : Card
         public override void SelectEffect(){
             Debug.Log("DeerSelected");
         }
-        public override void PlayEffect(){
-            isPermanent = false;
             Def = Def+1f;
             Debug.Log("DeerPlayed");
         }

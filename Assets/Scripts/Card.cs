@@ -29,6 +29,7 @@ public class Card : MonoBehaviour
     public bool isMonster = false;
     public bool isSpell = false;
     public bool canBeTrap = false;
+    public bool effectPermanent = false;
     public int PositionInHand;
     public Sprite subjectSprite;
     public GameObject portraitBackground;
