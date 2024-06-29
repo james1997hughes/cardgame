@@ -4,6 +4,7 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
+<<<<<<< Updated upstream
 namespace Cards{
     public class Mon_Deer : Card
     {
@@ -17,6 +18,27 @@ namespace Cards{
         public override float Def {get;set;}
         public override float Cost {get;set;}
         void Awake(){
+=======
+public class Mon_Deer : Card
+{
+    
+    public override string CardName {get;set;}
+    public override string CardDescription {get;set;}
+    public override string PlayEffectDescription {get;set;}
+    public override float HP {get;set;}
+    public override float MonAtk {get;set;}
+    public override float PlayerAtk {get;set;}
+    public override float Def {get;set;}
+    public override float Cost {get;set;}
+
+// original values for stat mods
+    public float originalHP {get;set;}
+    public float originalMonAtk {get;set;}
+    public float originalPlayerAtk {get;set;}
+    public float originalDef {get;set;}
+    public float originalCost {get;set;}
+    void Awake(){
+>>>>>>> Stashed changes
 
             this.subjectSprite = Resources.LoadAll<Sprite>("monsters")[10];
             isMonster = true;
@@ -47,5 +69,38 @@ namespace Cards{
             return;
         }
 
+<<<<<<< Updated upstream
     }
 }
+=======
+        CardName = "Deer";
+        CardDescription = "+1 Def on Attack";
+        PlayEffectDescription = "Summons monster to field";
+        HP = 2f;
+        MonAtk = 1f;
+        Def = 2f;
+        PlayerAtk = 1f;
+        Cost = 1f;
+
+        originalHP = 2f;
+        originallMonAtk = 1f;
+        originalDef = 2f;
+        originalPlayerAtk = 1f;
+        originalCost = 1f;
+    }
+    public override void SelectEffect(){
+        Debug.Log("DeerSelected");
+    }
+    public override void PlayEffect(){
+        isPermanent = false;
+        Def = Def+1f;
+        Debug.Log("DeerPlayed");
+    }
+
+    public override void SpellEffect(){
+        //maybe throw
+        return;
+    }
+
+}
+>>>>>>> Stashed changes
