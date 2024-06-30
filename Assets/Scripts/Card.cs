@@ -55,14 +55,14 @@ public class Card : MonoBehaviour
 
     // --Select Animation
     float speed = 15f;
-    float lowery = -5.74f;
+    float lowery = -4.97f;
     float raisedy = -2.74f;
 
     float enemylowery = 6f;
     float enemyraisedy = 4f;
 
-    Vector3 defaultScale = new Vector3(0.73f, 0.73f, 0.73f);
-    Vector3 highlightScale = new Vector3(1f, 1f, 1f);
+    Vector3 defaultScale = new Vector3(0.83f, 0.83f, 1f);
+    Vector3 highlightScale = new Vector3(1.5f, 1.5f, 1f);
     IEnumerator raiseCoro;
     IEnumerator lowerCoro;
     // ^^Select Animation
@@ -229,7 +229,7 @@ public class Card : MonoBehaviour
 
     Vector3 getHandSpace(){
         if(parentHand.playerControlled){
-            return new Vector3(-5.8f + (2f*PositionInHand),lowery, -1f + (0.1f*PositionInHand));
+            return new Vector3(-4.2f + (2f*PositionInHand),lowery, -1f + (0.1f*PositionInHand));
         } else{
             return new Vector3(3.04f - (2f*PositionInHand),enemylowery, -1f + (0.1f*PositionInHand));
         }

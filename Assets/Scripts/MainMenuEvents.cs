@@ -20,7 +20,9 @@ public class MainMenuEvents : MonoBehaviour
     public void loadGame() {
         SceneManager.LoadScene("Game");
     }
-
+    public void loadbetaGame() {
+        SceneManager.LoadScene("betaGame");
+    }
     public void loadCardInspect() {
         SceneManager.LoadScene("CardInspect"); 
     }

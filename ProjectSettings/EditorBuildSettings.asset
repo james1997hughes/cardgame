@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/CardInspect.unity
     guid: a96206d9c6280c040866014347a5a3a7
+  - enabled: 1
+    path: Assets/Scenes/betaGame.unity
+    guid: 1da5af9a826efe04187b98fdbc5862ff
   m_configObjects: {}
