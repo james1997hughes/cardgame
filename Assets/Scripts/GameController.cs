@@ -101,7 +101,7 @@ public class GameController : MonoBehaviour
 
     }
     IEnumerator doCardAttack(Card attackingCard, Card defendingCard){
-
+        Debug.Log(attackingCard.CardName + " is attacking "+ defendingCard.CardName);
 
         attackingCard.PreAttackEffect();
         //probably in future do pre defence effect
@@ -110,11 +110,12 @@ public class GameController : MonoBehaviour
         //This does not handle tempHP TODO
         if (attackingCard.MonAtk + attackingCard.StatModifiers["MonAtk"] >= defendingCard.Def + defendingCard.StatModifiers["Def"]){
             defendingCard.HP -= attackingCard.MonAtk + attackingCard.StatModifiers["MonAtk"];
+            Debug.Log("Successful attack! Defending card hp: "+defendingCard.HP);
         }
 
         if (attackingCard.Def + attackingCard.StatModifiers["Def"] <= defendingCard.MonAtk + defendingCard.StatModifiers["MonAtk"]){
             attackingCard.HP -= defendingCard.MonAtk + defendingCard.StatModifiers["MonAtk"];
-            
+            Debug.Log("Successful defence! Attacking card hp: "+attackingCard.HP);
         }
 
         yield return StartCoroutine(cardAttackAnimation(attackingCard, defendingCard));

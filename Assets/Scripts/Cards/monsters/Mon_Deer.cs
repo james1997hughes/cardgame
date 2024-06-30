@@ -28,9 +28,9 @@ namespace Cards
 
             CardName = "Deer";
             CardDescription = "+1 Def while Attacking & +1 HP Permanently";
-            HP = 2f;
-            MonAtk = 1f;
-            Def = 2f;
+            HP = 4f;
+            MonAtk = 3f;
+            Def = 3f;
             PlayerAtk = 1f;
             Cost = 1f;
         }

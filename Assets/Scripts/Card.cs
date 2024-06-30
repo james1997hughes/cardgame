@@ -311,12 +311,14 @@ public class Card : MonoBehaviour
             releasePoint.z = enemyLane1.transform.position.z; //this is stupid and shouldnt be needed... but it does work
             if(enemyLane1.boxCollider.bounds.Contains(releasePoint) && controller.turnPhase == GameController.TurnPhase.ATTACK){ //
                 Debug.Log("Tried to attack "+enemyLane1.CardName);
+                controller.attackCard(this, enemyLane1);
             }
         }
         if (enemyLane2 is not null){
             releasePoint.z = enemyLane2.transform.position.z;
             if(enemyLane2.boxCollider.bounds.Contains(releasePoint) && controller.turnPhase == GameController.TurnPhase.ATTACK){ //
                 Debug.Log("Tried to attack "+enemyLane2.CardName);
+                controller.attackCard(this, enemyLane2);
             }
         }
 
