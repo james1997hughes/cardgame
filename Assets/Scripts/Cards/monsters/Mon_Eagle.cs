@@ -11,7 +11,6 @@ namespace Cards{
         
         public override string CardName {get;set;}
         public override string CardDescription {get;set;}
-        public override string PlayEffectDescription {get;set;}
         public override float HP {get;set;}
         public override float MonAtk {get;set;}
         public override float PlayerAtk {get;set;}
@@ -26,7 +25,6 @@ namespace Cards{
 
             CardName = "Eagle";
             CardDescription = "+1 Spell slot next turn";
-            PlayEffectDescription = "Summons monster to field";
             HP = 2f;
             MonAtk = 5f;
             Def = 4f;
@@ -36,17 +34,22 @@ namespace Cards{
 
 
 
-    public override void SelectEffect(){
-        Debug.Log("MothSelected");
-    }
-    public override void PlayEffect(){
-        //+1 spell slot next turn
-        Debug.Log("MothPlayed");
-    }
-    public override void SpellEffect(){
-        //maybe throw
-        return;
-    }
+        public override void SelectEffect()
+        {
+
+        }
+        public override void PreAttackEffect()
+        {
+            
+        }
+        public override void PostAttackEffect()
+        {
+            
+        }
+        public override void SpellEffect()
+        {
+
+        }
 
 }
 

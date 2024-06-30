@@ -16,12 +16,12 @@ public class Card : MonoBehaviour
     */
     public virtual string CardName {get;set;}
     public virtual string CardDescription {get;set;}
-    public virtual string PlayEffectDescription {get;set;}
     public virtual float HP {get;set;}
     public virtual float MonAtk {get;set;}
     public virtual float PlayerAtk {get;set;}
     public virtual float Def {get;set;}
     public virtual float Cost{get;set;}
+    public virtual Dictionary<string, float> StatModifiers{get;set;}
 
 
     public bool inGame;
@@ -29,7 +29,6 @@ public class Card : MonoBehaviour
     public bool isMonster = false;
     public bool isSpell = false;
     public bool canBeTrap = false;
-    public bool effectPermanent = false;
     public int PositionInHand;
     public Sprite subjectSprite;
     public GameObject portraitBackground;
@@ -43,6 +42,7 @@ public class Card : MonoBehaviour
     public bool selected = false;
     public bool inHand = false;
     public bool inLane = false;
+    public int laneNum = 0;
 
     public bool dragging = false;
     bool returning = false;
@@ -68,7 +68,7 @@ public class Card : MonoBehaviour
     // ^^Select Animation
 
     //Gameobject components
-    BoxCollider2D boxCollider;
+    public BoxCollider2D boxCollider;
     public SortingGroup sortingGroup;
 
     public void setProps(int handPos, Hand parent, GameController control, GameObject portraitBg, int numberCardsDrawn){
@@ -118,28 +118,17 @@ public class Card : MonoBehaviour
         GameObject shadow = portrait.transform.Find("Card_MonPortraitShadow").gameObject;
         shadow.GetComponent<SpriteRenderer>().sprite = subjectSprite;
 
+        //Initialise stat mods
+        StatModifiers = new Dictionary<string, float>
+        {
+            { "HP", 0 },
+            { "MonAtk", 0 },
+            { "PlayerAtk", 0 },
+            { "Def", 0 }
+        };
+
         //Stat Bars
-        GameObject stats = transform.Find("Card_Front").Find("Card_Stats").gameObject;
-        GameObject HPBar = stats.transform.Find("HPBar").Find("InnerBar").gameObject;
-        GameObject DefBar = stats.transform.Find("DefBar").Find("InnerBar").gameObject;
-        GameObject AtkBar = stats.transform.Find("AtkBar").Find("InnerBar").gameObject;
-        GameObject PlayerAtkBar = stats.transform.Find("PlayerAtkBar").Find("InnerBar").gameObject;
-        
-
-        float maxScaleX = 4.6f;
-        
-
-        HPBar.transform.localScale = HPBar.transform.localScale + new Vector3((maxScaleX/12)*HP, 0, 0);
-        HPBar.transform.localPosition = HPBar.transform.localPosition + new Vector3(HPBar.transform.localScale.x * 0.5f, 0f, 0f);
-
-        DefBar.transform.localScale = DefBar.transform.localScale + new Vector3((maxScaleX/12)*Def, 0, 0);
-        DefBar.transform.localPosition = DefBar.transform.localPosition + new Vector3(DefBar.transform.localScale.x * 0.5f, 0f, 0f);
-
-        AtkBar.transform.localScale = AtkBar.transform.localScale + new Vector3((maxScaleX/12)*MonAtk, 0, 0);
-        AtkBar.transform.localPosition = AtkBar.transform.localPosition + new Vector3(AtkBar.transform.localScale.x * 0.5f, 0f, 0f);
-
-        PlayerAtkBar.transform.localScale = PlayerAtkBar.transform.localScale + new Vector3((maxScaleX/12)*PlayerAtk, 0, 0);
-        PlayerAtkBar.transform.localPosition = PlayerAtkBar.transform.localPosition + new Vector3(PlayerAtkBar.transform.localScale.x * 0.5f, 0f, 0f);
+        updateStatBars();
 
 
         //Mana cost
@@ -165,6 +154,31 @@ public class Card : MonoBehaviour
             SetupCardInPlay();
             dealCard();
         }
+    }
+
+    public void updateStatBars(){
+        //this should also handle mods, maybe in a different color
+        GameObject stats = transform.Find("Card_Front").Find("Card_Stats").gameObject;
+        GameObject HPBar = stats.transform.Find("HPBar").Find("InnerBar").gameObject;
+        GameObject DefBar = stats.transform.Find("DefBar").Find("InnerBar").gameObject;
+        GameObject AtkBar = stats.transform.Find("AtkBar").Find("InnerBar").gameObject;
+        GameObject PlayerAtkBar = stats.transform.Find("PlayerAtkBar").Find("InnerBar").gameObject;
+        
+
+        float maxScaleX = 4.6f;
+        
+
+        HPBar.transform.localScale = HPBar.transform.localScale + new Vector3((maxScaleX/12)*HP, 0, 0);
+        HPBar.transform.localPosition = HPBar.transform.localPosition + new Vector3(HPBar.transform.localScale.x * 0.5f, 0f, 0f);
+
+        DefBar.transform.localScale = DefBar.transform.localScale + new Vector3((maxScaleX/12)*Def, 0, 0);
+        DefBar.transform.localPosition = DefBar.transform.localPosition + new Vector3(DefBar.transform.localScale.x * 0.5f, 0f, 0f);
+
+        AtkBar.transform.localScale = AtkBar.transform.localScale + new Vector3((maxScaleX/12)*MonAtk, 0, 0);
+        AtkBar.transform.localPosition = AtkBar.transform.localPosition + new Vector3(AtkBar.transform.localScale.x * 0.5f, 0f, 0f);
+
+        PlayerAtkBar.transform.localScale = PlayerAtkBar.transform.localScale + new Vector3((maxScaleX/12)*PlayerAtk, 0, 0);
+        PlayerAtkBar.transform.localPosition = PlayerAtkBar.transform.localPosition + new Vector3(PlayerAtkBar.transform.localScale.x * 0.5f, 0f, 0f);
     }
 
     void SetupCardInPlay(){
@@ -284,10 +298,29 @@ public class Card : MonoBehaviour
 
     void checkAttackBounds(){
         Vector3 releasePoint = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y,Camera.main.nearClipPlane));
-        releasePoint.z = ui.enemyPortrait.transform.position.z;
-        if(ui.enemyPortrait.GetComponent<Collider2D>().bounds.Contains(releasePoint) && controller.turnPhase == GameController.TurnPhase.ATTACK){
-            controller.attackEnemy(PlayerAtk);
+        var enemyLane1 = controller.getLane1Enemy();
+        var enemyLane2 = controller.getLane2Enemy();
+
+        if (controller.enemy.Health > 0){
+            if(ui.enemyPortrait.GetComponent<Collider2D>().bounds.Contains(releasePoint) && controller.turnPhase == GameController.TurnPhase.ATTACK){ //Enemy Portrait
+                controller.attackEnemy(PlayerAtk);
+            }
         }
+
+        if (enemyLane1 is not null){
+            releasePoint.z = enemyLane1.transform.position.z; //this is stupid and shouldnt be needed... but it does work
+            if(enemyLane1.boxCollider.bounds.Contains(releasePoint) && controller.turnPhase == GameController.TurnPhase.ATTACK){ //
+                Debug.Log("Tried to attack "+enemyLane1.CardName);
+            }
+        }
+        if (enemyLane2 is not null){
+            releasePoint.z = enemyLane2.transform.position.z;
+            if(enemyLane2.boxCollider.bounds.Contains(releasePoint) && controller.turnPhase == GameController.TurnPhase.ATTACK){ //
+                Debug.Log("Tried to attack "+enemyLane2.CardName);
+            }
+        }
+
+
     }
     
 
@@ -323,16 +356,19 @@ public class Card : MonoBehaviour
         switch(lane){
             case 1:
                 inLane = true;
+                laneNum = 1;
                 restPosition = parentHand.playerControlled? ui.monLane1.transform.position : ui.enemyMonLane1.transform.position;
                 parentHand.adjustSpellSlotCurrent(Cost);
                 break;
             case 2:
                 inLane = true;
+                laneNum = 2;
                 restPosition = parentHand.playerControlled? ui.monLane2.transform.position : ui.enemyMonLane2.transform.position;
                 parentHand.adjustSpellSlotCurrent(Cost);
                 break;
             case 3:
                 inLane = true;
+                laneNum = 3;
                 restPosition = parentHand.playerControlled? ui.trapLane.transform.position : ui.enemyTrapLane.transform.position;
                 parentHand.adjustSpellSlotCurrent(Cost);
                 break;
@@ -345,14 +381,46 @@ public class Card : MonoBehaviour
         StartCoroutine(returnCardAnim());
     }
 
+    public void KillCard(){
+    
+        if (inLane){
+            switch (laneNum){
+                case 0:
+                    break;
+                case 1:
+                    parentHand.setLane1(null);
+                    break;
+                case 2:
+                    parentHand.setLane2(null);
+                    break;
+                case 3:
+                    parentHand.setTrapLane(null);
+                    break;
+            }
+        }
+
+
+        Destroy(gameObject);
+    }
+
     public virtual void SelectEffect(){
         Debug.Log("No card specific select effect defined.");
     }
-    public virtual void PlayEffect(){
-        Debug.Log("No card specific play effect defined.");
+    public virtual void PreAttackEffect(){
+        Debug.Log("No card specific pre attack defined.");
+    }
+    public virtual void PostAttackEffect(){
+        Debug.Log("No card specific post attack effect defined.");
     }
     public virtual void SpellEffect(){
         Debug.Log("No card specific spell effect defined.");
+    }
+
+    public void resetStats(){
+        StatModifiers["HP"] = 0;
+        StatModifiers["MonAtk"] = 0;
+        StatModifiers["PlayerAtk"] = 0;
+        StatModifiers["Def"] = 0;
     }
 
 

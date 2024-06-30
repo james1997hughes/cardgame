@@ -107,7 +107,7 @@ public class UI : MonoBehaviour
     
      IEnumerator fadeInText(TextMeshProUGUI textComponent, float duration)
     {
-        Debug.Log("Fade IN Text");
+        
         Color originalColor = textComponent.color;
         Color targetColor = new Color(originalColor.r, originalColor.g, originalColor.b, 1f); // Target alpha is 1
         float elapsedTime = 0f;
@@ -123,7 +123,7 @@ public class UI : MonoBehaviour
     }
     IEnumerator fadeOutText(TextMeshProUGUI textComponent, float duration)
     {
-        Debug.Log("Fade OUT Text");
+        
         Color originalColor = textComponent.color;
         Color targetColor = new Color(originalColor.r, originalColor.g, originalColor.b, 0f); // Target alpha is 1
 

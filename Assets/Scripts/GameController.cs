@@ -59,10 +59,6 @@ public class GameController : MonoBehaviour
         ui.controller = this;
 
 
-        if (enemy == null || enemyHand == null || playerHand == null){
-            throw new Exception("Something is null yo!");
-        }
-
         turn = 0;
 
         playerTurn = true;
@@ -80,18 +76,66 @@ public class GameController : MonoBehaviour
     public void setLane1Enemy(Card card){
         EnemyLane1Card = card;
     }
+    public Card getLane1Enemy(){
+        return EnemyLane1Card;
+    }
     public void setLane2Enemy(Card card){
         EnemyLane2Card = card;
+    }
+    public Card getLane2Enemy(){
+        return EnemyLane2Card;
     }
     public void setTrapLaneEnemy(Card card){
         EnemyTrapLaneCard = card;
     }
 
+    //Attack enemyplayer, not card
     public void attackEnemy(float damage){
         if (EnemyLane1Card == null && EnemyLane2Card == null){
             enemy.takeHit(damage);
-            // kacpers code below to check if effect is permanent     
         }
+    }
+    public void attackCard(Card attackingCard, Card defendingCard){
+
+        StartCoroutine(doCardAttack(attackingCard, defendingCard));
+
+    }
+    IEnumerator doCardAttack(Card attackingCard, Card defendingCard){
+
+
+        attackingCard.PreAttackEffect();
+        //probably in future do pre defence effect
+
+
+        //This does not handle tempHP TODO
+        if (attackingCard.MonAtk + attackingCard.StatModifiers["MonAtk"] >= defendingCard.Def + defendingCard.StatModifiers["Def"]){
+            defendingCard.HP -= attackingCard.MonAtk + attackingCard.StatModifiers["MonAtk"];
+        }
+
+        if (attackingCard.Def + attackingCard.StatModifiers["Def"] <= defendingCard.MonAtk + defendingCard.StatModifiers["MonAtk"]){
+            attackingCard.HP -= defendingCard.MonAtk + defendingCard.StatModifiers["MonAtk"];
+            
+        }
+
+        yield return StartCoroutine(cardAttackAnimation(attackingCard, defendingCard));
+
+        attackingCard.updateStatBars();
+        defendingCard.updateStatBars();
+
+        if (attackingCard.HP <= 0){
+            attackingCard.KillCard();
+        }
+        if (defendingCard.HP <= 0){
+            defendingCard.KillCard();
+        }
+
+
+        attackingCard.PostAttackEffect();
+    }
+
+    IEnumerator cardAttackAnimation(Card attackingCard, Card defendingCard){
+        //swoosh BAM
+        yield return null;
     }
 
     // Update is called once per frame

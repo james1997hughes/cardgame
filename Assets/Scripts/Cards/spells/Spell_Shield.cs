@@ -7,7 +7,6 @@ namespace Cards{
     {
         public override string CardName {get;set;}
         public override string CardDescription {get;set;}
-        public override string PlayEffectDescription {get;set;}
         public override float HP {get;set;}
         public override float MonAtk {get;set;}
         public override float PlayerAtk {get;set;}
@@ -22,7 +21,6 @@ namespace Cards{
 
             CardName = "Shield";
             CardDescription = "+1 Def permanently";
-            PlayEffectDescription = "+1 Def permanently";
             HP = 0f;
             MonAtk = 0f;
             Def = 0f;
@@ -32,15 +30,21 @@ namespace Cards{
 
 
 
-        public override void SelectEffect(){
-            Debug.Log("Spell selected!!");
-        }
+        public override void SelectEffect()
+        {
 
-        public override void PlayEffect(){
-            Debug.Log("Spell Played!!");
         }
-        public override void SpellEffect(){
-            Debug.Log("Spell effect triggered!");
+        public override void PreAttackEffect()
+        {
+            
+        }
+        public override void PostAttackEffect()
+        {
+            
+        }
+        public override void SpellEffect()
+        {
+
         }
     }
 }

@@ -10,7 +10,6 @@ namespace Cards{
         
         public override string CardName {get;set;}
         public override string CardDescription {get;set;}
-        public override string PlayEffectDescription {get;set;}
         public override float HP {get;set;}
         public override float MonAtk {get;set;}
         public override float PlayerAtk {get;set;}
@@ -25,7 +24,6 @@ namespace Cards{
 
             CardName = "Pig";
             CardDescription = "+1 Card HP on Attack";
-            PlayEffectDescription = "Summons monster to field";
             HP = 1f;
             MonAtk = 4f;
             Def = 4f;
@@ -35,16 +33,21 @@ namespace Cards{
 
 
 
-        public override void SelectEffect(){
-            Debug.Log("PiggySelected");
+        public override void SelectEffect()
+        {
+
         }
-        public override void PlayEffect(){
-            //+ card hp on atk
-            Debug.Log("PiggyPlayed");
+        public override void PreAttackEffect()
+        {
+            
         }
-        public override void SpellEffect(){
-            //maybe throw
-            return;
+        public override void PostAttackEffect()
+        {
+            
+        }
+        public override void SpellEffect()
+        {
+
         }
 
     }
