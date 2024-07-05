@@ -118,6 +118,14 @@ public class Card : MonoBehaviour
         GameObject shadow = portrait.transform.Find("Card_MonPortraitShadow").gameObject;
         shadow.GetComponent<SpriteRenderer>().sprite = subjectSprite;
 
+        // Set Ability text
+        if (CardDescription == null){
+            Destroy(transform.Find("Card_Front").Find("AbilityBox").gameObject); 
+        }else{
+        GameObject AbilityTextGO = transform.Find("Card_Front").Find("Canvas").Find("AbilityTextGO").gameObject;
+        AbilityTextGO.GetComponent<TextMeshProUGUI>().text = this.CardDescription;
+        }
+
         //Initialise stat mods
         StatModifiers = new Dictionary<string, float>
         {
@@ -129,7 +137,6 @@ public class Card : MonoBehaviour
 
         //Stat Bars
         updateStatBars();
-
 
         //Mana cost
         Transform orbs = transform.Find("Card_Front").Find("Mana_Orbs");
@@ -179,6 +186,19 @@ public class Card : MonoBehaviour
 
         PlayerAtkBar.transform.localScale = PlayerAtkBar.transform.localScale + new Vector3((maxScaleX/12)*PlayerAtk, 0, 0);
         PlayerAtkBar.transform.localPosition = PlayerAtkBar.transform.localPosition + new Vector3(PlayerAtkBar.transform.localScale.x * 0.5f, 0f, 0f);
+
+        // Stat Values
+        GameObject HPGO = transform.Find("Card_Front").Find("Canvas").Find("HPGO").gameObject;
+        HPGO.GetComponent<TextMeshProUGUI>().text = HP.ToString();
+        
+        GameObject MONATKGO = transform.Find("Card_Front").Find("Canvas").Find("MONATKGO").gameObject;
+        MONATKGO.GetComponent<TextMeshProUGUI>().text = MonAtk.ToString();
+        
+        GameObject DEFGO = transform.Find("Card_Front").Find("Canvas").Find("DEFGO").gameObject;
+        DEFGO.GetComponent<TextMeshProUGUI>().text = Def.ToString();
+        
+        GameObject ATKGO = transform.Find("Card_Front").Find("Canvas").Find("ATKGO").gameObject;
+        ATKGO.GetComponent<TextMeshProUGUI>().text = PlayerAtk.ToString();
     }
 
     void SetupCardInPlay(){

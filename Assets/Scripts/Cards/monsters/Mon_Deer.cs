@@ -27,7 +27,8 @@ namespace Cards
             canBeTrap = false;
 
             CardName = "Deer";
-            CardDescription = "+1 Def while Attacking & +1 HP Permanently";
+            // CardDescription = "+1 Def while Attacking & +1 HP Permanently";
+            // CardDescription = "+1 <sprite name=\"icons2_3\"> ON ATK";
             HP = 4f;
             MonAtk = 3f;
             Def = 3f;
