@@ -53,40 +53,51 @@ public class Hand : MonoBehaviour
         cardsInDeck = shuffleDeck(cardsInDeck);
     }
 
-    void loadDeck(){
+    void loadDeck()
+    {
         string[] lines = File.ReadAllLines(@"Assets\Decks\deck1.txt");
 
-        foreach (string x in lines){
-            try{
+        foreach (string x in lines)
+        {
+            try
+            {
                 cardsInDeck.Add(x);
-            }catch{
+            }
+            catch
+            {
                 Debug.Log("Couldn't find card.");
             }
         }
-        
+
     }
-    public void drawToMax(){
-        if (cardsInHand.Count < maxCardsInHand){
+    public void drawToMax()
+    {
+        if (cardsInHand.Count < maxCardsInHand)
+        {
             drawCards(maxCardsInHand - cardsInHand.Count);
         }
     }
-    
-    public void drawCards(int i){
-        if (cardsInDeck.Count > 0){
-            for(int k = 0; k < i; k++){
+
+    public void drawCards(int i)
+    {
+        if (cardsInDeck.Count > 0)
+        {
+            for (int k = 0; k < i; k++)
+            {
                 int lastIndex = cardsInDeck.Count - 1; // Index of the last item
                 string poppedCard = cardsInDeck[lastIndex]; // Retrieve the last card
-                cardsInDeck.RemoveAt(lastIndex); 
+                cardsInDeck.RemoveAt(lastIndex);
                 numberCardsDrawn += 1;
-                GameObject cardGO = Instantiate(monPrefab, new Vector2(0,0), Quaternion.identity);
-                var added = (Card)cardGO.AddComponent(Type.GetType("Cards."+poppedCard));
+                GameObject cardGO = Instantiate(monPrefab, new Vector2(0, 0), Quaternion.identity);
+                var added = (Card)cardGO.AddComponent(Type.GetType("Cards." + poppedCard));
                 Debug.Log(poppedCard);
-                if (added.isSpell){
+                if (added.isSpell)
+                {
                     cardGO.transform.Find("Card_Front").Find("Card_Base").GetComponent<SpriteRenderer>().sprite = spellCardSprite;
                     cardGO.transform.Find("Card_Front").Find("Symbol").GetComponent<SpriteRenderer>().sprite = reactiveSymbol;
                     Destroy(cardGO.transform.Find("Card_Front").Find("Card_Stats").gameObject);
                 }
-                int index= cardsInHand.Count-1;
+                int index = cardsInHand.Count - 1;
                 added.setProps(index, this, game, grassPrefab, numberCardsDrawn);
                 added.sortingGroup = added.gameObject.GetComponent<SortingGroup>();
                 Debug.Log(added.sortingGroup.sortingLayerName);
@@ -99,70 +110,37 @@ public class Hand : MonoBehaviour
         }
     }
 
-    void resetCardsInHand(){
+    void resetCardsInHand()
+    {
         Debug.Log("Resetting cards");
-        foreach(Card card in cardsInHand){
+        foreach (Card card in cardsInHand)
+        {
             card.resetCard();
         }
     }
 
-    public void adjustSpellSlotCurrent(float amount, bool max = false){
+    public void adjustSpellSlotCurrent(float amount, bool max = false)
+    {
         spellSlotCurrent = spellSlotCurrent - amount;
-        if (max){ spellSlotCurrent = spellSlotMax;}
-        if (playerControlled){
-            spellSlotContainer.setPercentage((spellSlotCurrent/spellSlotMax)*100);
+        if (max) { spellSlotCurrent = spellSlotMax; }
+        if (playerControlled)
+        {
+            spellSlotContainer.setPercentage((spellSlotCurrent / spellSlotMax) * 100);
             spellSlotContainer.setCurrentSlotText(spellSlotCurrent);
         }
     }
 
-    List<string> shuffleDeck(List<string> deck){
+    List<string> shuffleDeck(List<string> deck)
+    {
         return deck.OrderBy(_ => UnityEngine.Random.value).ToList();
     }
-    public void setLane1(Card card){
-        if(playerControlled){
-            game.setLane1Player(card);
-        }else{
-            game.setLane1Enemy(card);
-        }
 
-        card.playCard(1);
+    public void discard(Card card)
+    {
+        card.playCard(Lanes.DISCARD_LANE);
 
-        if(!cardsInHand.Remove(card)){
-            Debug.Log("Card failed to remove!");
-        };
-    }
-    public void setLane2(Card card){
-        if(playerControlled){
-            game.setLane2Player(card);
-        } else {
-            game.setLane2Enemy(card);
-        }
-
-        card.playCard(2);
-
-        if(!cardsInHand.Remove(card)){
-            Debug.Log("Card failed to remove!");
-        };
-    }
-
-    public void setTrapLane(Card card){
-        if(playerControlled){
-            game.setTrapLanePlayer(card);
-        }else{
-            game.setTrapLaneEnemy(card);
-        }
-
-        card.playCard(3);
-
-        if(!cardsInHand.Remove(card)){
-            Debug.Log("Card failed to remove!");
-        };
-    }
-
-    public void discard(Card card){
-        card.playCard(4);
-        
-        if(!cardsInHand.Remove(card)){
+        if (!cardsInHand.Remove(card))
+        {
             Debug.Log("Card failed to remove!");
         };
         drawCards(1);
@@ -171,6 +149,6 @@ public class Hand : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

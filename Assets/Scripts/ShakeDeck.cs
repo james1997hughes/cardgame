@@ -16,7 +16,8 @@ public class ShakeDeck : MonoBehaviour
 
     private bool shaking = false;
 
-    void OnMouseUpAsButton(){
+    void OnMouseUpAsButton()
+    {
         StartShaking();
     }
 
@@ -28,7 +29,8 @@ public class ShakeDeck : MonoBehaviour
         if (!shaking)
         {
             shaking = true;
-            foreach (GameObject go in objectsToShake){
+            foreach (GameObject go in objectsToShake)
+            {
                 StartCoroutine(ShakeSingle(go));
             }
         }
@@ -39,11 +41,12 @@ public class ShakeDeck : MonoBehaviour
         Quaternion startRotation = go.transform.rotation;
         float elapsedTime = 0f;
         int direction = UnityEngine.Random.Range(0, 2);
-                
-        while (elapsedTime < (1f + (UnityEngine.Random.Range(1, 10)/10f)))
+
+        while (elapsedTime < (1f + (UnityEngine.Random.Range(1, 10) / 10f)))
         {
             float shakeAmount = Mathf.Sin(Time.time * shakeSpeed) * shakeIntensity;
-            if (direction == 1){
+            if (direction == 1)
+            {
                 shakeAmount = shakeAmount * -1;
             }
             go.transform.rotation = startRotation * Quaternion.Euler(0f, 0f, shakeAmount);
