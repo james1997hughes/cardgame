@@ -4,18 +4,20 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace Cards{
+namespace Cards
+{
     public class Mon_Slime : Card
     {
-        
-        public override string CardName {get;set;}
-        public override string CardDescription {get;set;}
-        public override float HP {get;set;}
-        public override float MonAtk {get;set;}
-        public override float PlayerAtk {get;set;}
-        public override float Def {get;set;}
-        public override float Cost {get;set;}
-        void Awake(){
+
+        public override string CardName { get; set; }
+        public override string CardDescription { get; set; }
+        public override float HP { get; set; }
+        public override float MonAtk { get; set; }
+        public override float PlayerAtk { get; set; }
+        public override float Def { get; set; }
+        public override float Cost { get; set; }
+        void Awake()
+        {
 
             this.subjectSprite = Resources.LoadAll<Sprite>("monsters")[0];
             isMonster = true;
@@ -39,11 +41,11 @@ namespace Cards{
         }
         public override void PreAttackEffect()
         {
-            
+
         }
         public override void PostAttackEffect()
         {
-            
+
         }
         public override void SpellEffect()
         {

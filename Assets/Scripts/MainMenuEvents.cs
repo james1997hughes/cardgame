@@ -8,26 +8,30 @@ public class MainMenuEvents : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
-    public void loadGame() {
+    public void loadGame()
+    {
         SceneManager.LoadScene("Game");
     }
-    public void loadbetaGame() {
+    public void loadbetaGame()
+    {
         SceneManager.LoadScene("betaGame");
     }
-    public void loadCardInspect() {
-        SceneManager.LoadScene("CardInspect"); 
+    public void loadCardInspect()
+    {
+        SceneManager.LoadScene("CardInspect");
     }
 
-    public void loadMainMenu() {
-        SceneManager.LoadScene("MainMenu"); 
+    public void loadMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 }

@@ -17,15 +17,18 @@ public class SpellSlots : MonoBehaviour
         maxSlotsText = transform.Find("Canvas").Find("MaxSlotsText").gameObject.GetComponent<TextMeshProUGUI>();
     }
 
-    public void setPercentage(float percent){
-        float scaleVal = (percent/100)*maxFill;
+    public void setPercentage(float percent)
+    {
+        float scaleVal = (percent / 100) * maxFill;
         barTransform.localScale = new Vector3(barTransform.localScale.x, scaleVal, barTransform.localScale.z);
     }
 
-    public void setCurrentSlotText(float current){
+    public void setCurrentSlotText(float current)
+    {
         currentSlotsText.text = current.ToString();
     }
-    public void setMaxSlotText(float max){
+    public void setMaxSlotText(float max)
+    {
         maxSlotsText.text = max.ToString();
     }
 }

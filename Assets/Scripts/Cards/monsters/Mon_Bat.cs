@@ -4,33 +4,35 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-namespace Cards{
+namespace Cards
+{
 
     public class Mon_Bat : Card
     {
-        
-        public override string CardName {get;set;}
-        public override string CardDescription {get;set;}
-        public override float HP {get;set;}
-        public override float MonAtk {get;set;}
-        public override float PlayerAtk {get;set;}
-        public override float Def {get;set;}
-        public override float Cost {get;set;}
-        void Awake(){
+
+        public override string CardName { get; set; }
+        public override string CardDescription { get; set; }
+        public override float HP { get; set; }
+        public override float MonAtk { get; set; }
+        public override float PlayerAtk { get; set; }
+        public override float Def { get; set; }
+        public override float Cost { get; set; }
+        void Awake()
+        {
 
             this.subjectSprite = Resources.LoadAll<Sprite>("monsters")[7];
             isMonster = true;
             isSpell = false;
             canBeTrap = false;
 
-        CardName = "Bat";
-        CardDescription = "+1 Player HPon Attack";
-        HP = 1f;
-        MonAtk = 2f;
-        Def = 2f;
-        PlayerAtk = 2f;
-        Cost = 1f;
-    }
+            CardName = "Bat";
+            CardDescription = "+1 Player HPon Attack";
+            HP = 1f;
+            MonAtk = 2f;
+            Def = 2f;
+            PlayerAtk = 2f;
+            Cost = 1f;
+        }
 
 
 
@@ -40,11 +42,11 @@ namespace Cards{
         }
         public override void PreAttackEffect()
         {
-            
+
         }
         public override void PostAttackEffect()
         {
-            
+
         }
         public override void SpellEffect()
         {
