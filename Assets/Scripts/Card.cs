@@ -212,8 +212,13 @@ public class Card : MonoBehaviour
         ui = UIGO.GetComponent<UI>();// TODO refactor to controller.ui
 
         boxCollider = gameObject.AddComponent<BoxCollider2D>();
-        boxCollider.offset = new Vector2(0, -2.2f);
-        boxCollider.size = new Vector2(2.25f, 8f);
+        if (!parentHand.playerControlled){
+            boxCollider.offset = new Vector2(0, 0); //Bound collider to the card if enemy card - clipping issues
+            boxCollider.size = new Vector2(2.25f, 3f);
+        } else {
+            boxCollider.offset = new Vector2(0, -2.2f); //Bound collider to below the card - selecting card moves card above hitbox
+            boxCollider.size = new Vector2(2.25f, 8f);
+        }
 
         gameObject.transform.localScale = defaultScale;
         raiseCoro = RaiseCard();
@@ -311,7 +316,7 @@ public class Card : MonoBehaviour
     {
         if (mouseDown && parentHand.playerControlled)
         {
-            if (Vector3.Distance(Input.mousePosition, mousePosAtDown) > 50)
+            if (Vector3.Distance(Input.mousePosition, mousePosAtDown) > 10)
             {
                 sortingGroup.sortingLayerName = "cards_active";
                 fixText();
@@ -386,18 +391,7 @@ public class Card : MonoBehaviour
     {
         Vector3 releasePoint = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
         releasePoint.z = ui.monLane1GO.transform.position.z;
-        /*if (parentHand.spellSlotCurrent - Cost >= 0 && controller.turnPhase == GameController.TurnPhase.SUMMON){
-            
-            if(ui.monLane1GO.GetComponent<Collider2D>().bounds.Contains(releasePoint) && !isSpell){
-                parentHand.setLane1(this);
-            }
-            if(ui.monLane2GO.GetComponent<Collider2D>().bounds.Contains(releasePoint) && !isSpell){
-                parentHand.setLane2(this);
-            }
-            if(ui.trapLaneGO.GetComponent<Collider2D>().bounds.Contains(releasePoint) && !isMonster){
-                parentHand.setTrapLane(this);
-            }
-        }*/
+
         if (ui.discardLaneGO.GetComponent<Collider2D>().bounds.Contains(releasePoint))
         {
             parentHand.discard(this);
