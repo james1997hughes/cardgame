@@ -25,8 +25,9 @@ public class Card : MonoBehaviour
 
     public AudioSource audioSource;
     public AudioClip OnPlayAudio;
-    public AudioClip OnEffectAudio;
+    public AudioClip OnSelectAudio;
     public AudioClip OnDeathAudio;
+    public AudioClip OnDiscardAudio;
 
     public bool inGame;
     public int cardNumber;
@@ -135,6 +136,12 @@ public class Card : MonoBehaviour
 
         //Audio setup
         audioSource = gameObject.AddComponent<AudioSource>();
+        //Define default sound effects
+        OnPlayAudio = Resources.Load<AudioClip>("Sound/Placement");
+        OnSelectAudio = null;
+        OnDeathAudio = null;
+        OnDiscardAudio = Resources.Load<AudioClip>("Sound/Discard");
+
        
         //Stat Bars
         updateStatBars();
@@ -443,21 +450,25 @@ public class Card : MonoBehaviour
                 inLane = true;
                 restPosition = parentHand.playerControlled ? ui.monLane1GO.transform.position : ui.enemyMonLane1GO.transform.position;
                 parentHand.adjustSpellSlotCurrent(Cost);
+                PlayEffect();
                 break;
             case Lanes.MONSTER_LANE_2:
                 inLane = true;
                 restPosition = parentHand.playerControlled ? ui.monLane2GO.transform.position : ui.enemyMonLane2GO.transform.position;
                 parentHand.adjustSpellSlotCurrent(Cost);
+                PlayEffect();
                 break;
             case Lanes.TRAP_LANE:
                 inLane = true;
                 restPosition = parentHand.playerControlled ? ui.trapLaneGO.transform.position : ui.enemyTrapLaneGO.transform.position;
                 parentHand.adjustSpellSlotCurrent(Cost);
+                PlayEffect(); // Maybe trapeffect in future
                 break;
             case Lanes.DISCARD_LANE:
                 transform.Find("Card_Front").gameObject.SetActive(false);
                 transform.Find("Card_Back").gameObject.SetActive(true);
                 restPosition = parentHand.playerControlled ? ui.discardLaneGO.transform.position : ui.enemyDiscardLaneGO.transform.position;
+                DiscardEffect();
                 break;
         }
         StartCoroutine(returnCardAnim());
@@ -465,20 +476,41 @@ public class Card : MonoBehaviour
 
     public virtual void SelectEffect()
     {
-        audioSource.clip = Resources.Load<AudioClip>("Sound/Placement");
+        //Play audio - either default or specific
+        audioSource.clip = OnSelectAudio;
         audioSource.Play();
+
+        //Do other default select behaviour
+
+    }
+    public virtual void PlayEffect(){
+        //Play audio - either default or specific
+        audioSource.clip = OnPlayAudio;
+        audioSource.Play();
+
+        //Do other default play behaviour
+
     }
     public virtual void PreAttackEffect()
     {
-        Debug.Log("No card specific pre attack defined.");
+        
     }
     public virtual void PostAttackEffect()
     {
-        Debug.Log("No card specific post attack effect defined.");
+        
     }
     public virtual void SpellEffect()
     {
-        Debug.Log("No card specific spell effect defined.");
+
+    }
+    public virtual void DiscardEffect()
+    {
+        //Play audio - either default or specific
+        audioSource.clip = OnDiscardAudio;
+        audioSource.Play();
+
+        //Do other default discard behaviour
+
     }
 
     public void resetStats()

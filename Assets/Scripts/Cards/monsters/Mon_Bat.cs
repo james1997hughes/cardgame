@@ -38,20 +38,31 @@ namespace Cards
 
         public override void SelectEffect()
         {
+            OnSelectAudio = null;
+            base.SelectEffect();
+        }
+        public override void PlayEffect()
+        {
+            OnPlayAudio = Resources.Load<AudioClip>("Sound/Eagle"); //Easier to set this here than deal with inheritance start/awake order
 
+            base.PlayEffect();
         }
         public override void PreAttackEffect()
         {
-
+            base.PreAttackEffect();
         }
         public override void PostAttackEffect()
         {
-
+            base.PostAttackEffect();
+        }
+        public override void DiscardEffect()
+        {
+            OnDiscardAudio = null;
+            base.DiscardEffect();
         }
         public override void SpellEffect()
         {
-
+            base.SpellEffect();
         }
-
     }
 }

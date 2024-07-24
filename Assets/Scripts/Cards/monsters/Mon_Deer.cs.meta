@@ -5,9 +5,8 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - audioSource: {instanceID: 0}
-  - OnPlayAudio: {fileID: 8300000, guid: aec5acfbf3836174cba0c266792e1334, type: 3}
-  - OnEffectAudio: {fileID: 8300000, guid: 6432e82f1137ffa4b92dd416f38fc159, type: 3}
-  - OnDeathAudio: {fileID: 8300000, guid: 7662bbb3484eefc448a787d06f7c7b66, type: 3}
+  - OnPlayAudio: {instanceID: 0}
+  - OnDeathAudio: {instanceID: 0}
   - subjectSprite: {instanceID: 0}
   - portraitBackground: {instanceID: 0}
   - parentHand: {instanceID: 0}
@@ -15,9 +14,7 @@ MonoImporter:
   - lane: {instanceID: 0}
   - boxCollider: {instanceID: 0}
   - sortingGroup: {instanceID: 0}
-  - specificOnPlayAudio: {instanceID: 0}
-  - specificOnEffectAudio: {instanceID: 0}
-  - specificOnDeathAudio: {instanceID: 0}
+  - PlaySoundEffect: {fileID: 8300000, guid: 6432e82f1137ffa4b92dd416f38fc159, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
