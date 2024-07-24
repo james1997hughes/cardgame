@@ -36,10 +36,11 @@ namespace Cards
             Cost = 1f;
         }
 
-        public override void SelectEffect()
-        {
-
-        }
+//         public override void SelectEffect()
+//         {
+// //            audioSource.clip = Resources.Load<AudioClip>("Sound/Deer");
+// //            audioSource.Play();
+//         }
         public override void PreAttackEffect()
         {
             StatModifiers["Def"] = 1; //Temporary

@@ -23,6 +23,10 @@ public class Card : MonoBehaviour
     public virtual float Cost { get; set; }
     public virtual Dictionary<string, float> StatModifiers { get; set; }
 
+    public AudioSource audioSource;
+    public AudioClip OnPlayAudio;
+    public AudioClip OnEffectAudio;
+    public AudioClip OnDeathAudio;
 
     public bool inGame;
     public int cardNumber;
@@ -129,6 +133,9 @@ public class Card : MonoBehaviour
             { "Def", 0 }
         };
 
+        //Audio setup
+        audioSource = gameObject.AddComponent<AudioSource>();
+       
         //Stat Bars
         updateStatBars();
 
@@ -458,7 +465,8 @@ public class Card : MonoBehaviour
 
     public virtual void SelectEffect()
     {
-        Debug.Log("No card specific select effect defined.");
+        audioSource.clip = Resources.Load<AudioClip>("Sound/Placement");
+        audioSource.Play();
     }
     public virtual void PreAttackEffect()
     {

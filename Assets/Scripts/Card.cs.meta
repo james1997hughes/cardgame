@@ -3,7 +3,17 @@ guid: 94b522d7610324267b47505abf23c49b
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - OnPlayAudio: {fileID: 8300000, guid: 05ea3b7ff6c6adb42958121721aa712a, type: 3}
+  - OnEffectAudio: {fileID: 8300000, guid: 6432e82f1137ffa4b92dd416f38fc159, type: 3}
+  - OnDeathAudio: {fileID: 8300000, guid: 7662bbb3484eefc448a787d06f7c7b66, type: 3}
+  - subjectSprite: {instanceID: 0}
+  - portraitBackground: {instanceID: 0}
+  - parentHand: {instanceID: 0}
+  - controller: {instanceID: 0}
+  - lane: {instanceID: 0}
+  - boxCollider: {instanceID: 0}
+  - sortingGroup: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
