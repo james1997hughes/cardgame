@@ -138,8 +138,8 @@ public class Card : MonoBehaviour
         audioSource = gameObject.AddComponent<AudioSource>();
         //Define default sound effects
         OnPlayAudio = Resources.Load<AudioClip>("Sound/Placement");
-        OnSelectAudio = null;
-        OnDeathAudio = null;
+        OnSelectAudio = Resources.Load<AudioClip>("Sound/Sliceup");
+        OnDeathAudio = null; //not sure if this is not just the same as discard, will have to playtest options
         OnDiscardAudio = Resources.Load<AudioClip>("Sound/Discard");
 
        

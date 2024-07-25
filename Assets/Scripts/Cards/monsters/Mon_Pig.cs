@@ -43,7 +43,7 @@ namespace Cards
         }
         public override void PlayEffect()
         {
-            OnPlayAudio = Resources.Load<AudioClip>("Sound/Eagle"); //Easier to set this here than deal with inheritance start/awake order
+            OnPlayAudio = Resources.Load<AudioClip>("Sound/Boar"); //Easier to set this here than deal with inheritance start/awake order
 
             base.PlayEffect();
         }
