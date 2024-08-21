@@ -112,6 +112,19 @@ public class GameController : MonoBehaviour
             player.takeHit(damage);
         }
     }
+    public void tryDiscard(Card card, Hand hand)
+    {
+        card.transform.Find("Card_Front").gameObject.SetActive(false);
+        card.transform.Find("Card_Back").gameObject.SetActive(true);
+        card.restPosition = card.parentHand.playerControlled ? ui.discardLaneGO.transform.position : ui.enemyDiscardLaneGO.transform.position;
+        card.DiscardEffect();
+
+        if (!hand.cardsInHand.Remove(card))
+        {
+            Debug.Log("Card failed to remove!");
+        }
+        hand.drawCards(1);
+    }
     public void tryPlayCard(Card card, Hand hand, Lane lane)
     {
         if (hand.spellSlotCurrent - card.Cost >= 0)
@@ -124,7 +137,36 @@ public class GameController : MonoBehaviour
                 }
 
                 lane.card = card;
-                card.playCard(lane.lane);
+                card.inHand = false;
+                card.transform.Find("Card_Front").gameObject.SetActive(true);
+                card.transform.Find("Card_Back").gameObject.SetActive(false);
+                card.parentHand.numberCardsPlayed += 1; // TODO Take out
+                card.sortingGroup.sortingLayerName = "cards_played";
+                card.sortingGroup.sortingOrder = card.parentHand.numberCardsPlayed;
+                card.fixText();
+
+                switch (lane.lane)
+                {
+                    case Lanes.MONSTER_LANE_1:
+                        card.inLane = true;
+                        card.restPosition = card.parentHand.playerControlled ? ui.monLane1GO.transform.position : ui.enemyMonLane1GO.transform.position;
+                        card.parentHand.adjustSpellSlotCurrent(card.Cost);
+                        card.PlayEffect();
+                        break;
+                    case Lanes.MONSTER_LANE_2:
+                        card.inLane = true;
+                        card.restPosition = card.parentHand.playerControlled ? ui.monLane2GO.transform.position : ui.enemyMonLane2GO.transform.position;
+                        card.parentHand.adjustSpellSlotCurrent(card.Cost);
+                        card.PlayEffect();
+                        break;
+                    case Lanes.TRAP_LANE:
+                        card.inLane = true;
+                        card.restPosition = card.parentHand.playerControlled ? ui.trapLaneGO.transform.position : ui.enemyTrapLaneGO.transform.position;
+                        card.parentHand.adjustSpellSlotCurrent(card.Cost);
+                        card.PlayEffect(); // Maybe trapeffect in future
+                        break;
+                }
+                StartCoroutine(card.returnCardAnim());
 
             }
             else
@@ -189,11 +231,6 @@ public class GameController : MonoBehaviour
         yield return null;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     public void nextPhase()
     {
