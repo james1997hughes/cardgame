@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: c598daa267db9dd489e7bbf6dfb5b300
+guid: a0c5dfb6c8c261e4d9159c4e92ca041f
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Mana Seed
+  - Mana Seed Title
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

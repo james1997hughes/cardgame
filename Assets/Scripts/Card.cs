@@ -26,6 +26,7 @@ public class Card : MonoBehaviour
     public bool isMonster = false;
     public bool isSpell = false;
     public bool canBeTrap = false;
+    public bool isReactive = false;
     public int PositionInHand;
     public Sprite subjectSprite;
     public GameObject portraitBackground;
@@ -106,7 +107,7 @@ public class Card : MonoBehaviour
         shadow.GetComponent<SpriteRenderer>().sprite = subjectSprite;
 
         // Set Ability text
-        if (CardDescription == null)
+        if (CardDescription == null || isSpell)
         {
             Destroy(transform.Find("Card_Front").Find("AbilityBox").gameObject);
         }
@@ -114,6 +115,17 @@ public class Card : MonoBehaviour
         {
             GameObject AbilityTextGO = transform.Find("Card_Front").Find("Canvas").Find("AbilityTextGO").gameObject;
             AbilityTextGO.GetComponent<TextMeshProUGUI>().text = this.CardDescription;
+        }
+
+        //Set Spell text
+        if (isSpell)
+        {
+            GameObject SpellTextGO = transform.Find("Card_Front").Find("Canvas").Find("SpellTextGO").gameObject;
+            SpellTextGO.GetComponent<TextMeshProUGUI>().text = this.CardDescription;
+        }
+        else
+        {
+            Destroy(transform.Find("Card_Front").Find("Canvas").Find("SpellTextGO").gameObject);
         }
 
         //Stat Bars
@@ -285,6 +297,15 @@ public class Card : MonoBehaviour
         PlayerAtkBar.transform.localPosition = PlayerAtkBar.transform.localPosition + new Vector3(PlayerAtkBar.transform.localScale.x * 0.5f, 0f, 0f);
 
         // Stat Values
+        if (isSpell)
+        {
+            Destroy(transform.Find("Card_Front").Find("Canvas").Find("HPGO").gameObject);
+            Destroy(transform.Find("Card_Front").Find("Canvas").Find("MONATKGO").gameObject);
+            Destroy(transform.Find("Card_Front").Find("Canvas").Find("DEFGO").gameObject);
+            Destroy(transform.Find("Card_Front").Find("Canvas").Find("ATKGO").gameObject);
+        }
+        else
+        {
         GameObject HPGO = transform.Find("Card_Front").Find("Canvas").Find("HPGO").gameObject;
         HPGO.GetComponent<TextMeshProUGUI>().text = HP.ToString();
 
@@ -296,6 +317,8 @@ public class Card : MonoBehaviour
 
         GameObject ATKGO = transform.Find("Card_Front").Find("Canvas").Find("ATKGO").gameObject;
         ATKGO.GetComponent<TextMeshProUGUI>().text = PlayerAtk.ToString();
+        }
+
     }
     public void fixText()
     {

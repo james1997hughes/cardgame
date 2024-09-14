@@ -45,7 +45,7 @@ SortingGroup:
   m_GameObject: {fileID: 1081495792502885126}
   m_Enabled: 1
   m_SortingLayerID: -1394763177
-  m_SortingLayer: 7
+  m_SortingLayer: 10
   m_SortingOrder: 15
   m_SortAtRoot: 1
 --- !u!1 &1371772518048802254
@@ -414,7 +414,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -443,7 +443,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 10.073139, w: 6.887823}
+  m_margin: {x: -0.14748526, y: 0, z: 9.736872, w: 6.887823}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0

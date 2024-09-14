@@ -26,8 +26,9 @@ public class Hand : MonoBehaviour
     public float Health;
     public float spellSlotMax;
     public float spellSlotCurrent;
-    GameObject monPrefab;
+    GameObject cardPrefab;
     GameObject grassPrefab;
+    GameObject stonePrefab;
     Sprite spellCardSprite;
     Sprite reactiveSymbol;
 
@@ -38,10 +39,11 @@ public class Hand : MonoBehaviour
         numberCardsDrawn = 0;
         numberCardsPlayed = 0;
         maxCardsInHand = 5;
-        monPrefab = Resources.Load<GameObject>("Prefabs/MonsterCardPrefab"); //need to add spell
+        cardPrefab = Resources.Load<GameObject>("Prefabs/CardPrefab"); //need to add spell
         spellCardSprite = Resources.Load<Sprite>("spell_card_blank");
         reactiveSymbol = Resources.Load<Sprite>("reactive_symbol");
         grassPrefab = Resources.Load<GameObject>("Prefabs/Grass"); //should be configurable per card
+        stonePrefab = Resources.Load<GameObject>("Prefabs/Stone"); //should be configurable per card
         game = gameController.GetComponent<GameController>();
         cardsInHand = new List<Card>();
         cardsInDeck = new List<string>();
@@ -55,7 +57,7 @@ public class Hand : MonoBehaviour
 
     void loadDeck()
     {
-        string[] lines = File.ReadAllLines(@"Assets\Decks\deck1.txt");
+        string[] lines = File.ReadAllLines(@"Assets\Decks\deck2.txt");
 
         foreach (string x in lines)
         {
@@ -88,16 +90,21 @@ public class Hand : MonoBehaviour
                 string poppedCard = cardsInDeck[lastIndex]; // Retrieve the last card
                 cardsInDeck.RemoveAt(lastIndex);
                 numberCardsDrawn += 1;
-                GameObject cardGO = Instantiate(monPrefab, new Vector2(0, 0), Quaternion.identity);
+                GameObject cardGO = Instantiate(cardPrefab, new Vector2(0, 0), Quaternion.identity);
                 var added = (Card)cardGO.AddComponent(Type.GetType("Cards." + poppedCard));
                 Debug.Log(poppedCard);
+                int index = cardsInHand.Count - 1;
                 if (added.isSpell)
                 {
-                    cardGO.transform.Find("Card_Front").Find("Card_Base").GetComponent<SpriteRenderer>().sprite = spellCardSprite;
+                    if (added.isReactive)
+                    {
                     cardGO.transform.Find("Card_Front").Find("Symbol").GetComponent<SpriteRenderer>().sprite = reactiveSymbol;
-                    Destroy(cardGO.transform.Find("Card_Front").Find("Card_Stats").gameObject);
+                    }
+                cardGO.transform.Find("Card_Front").Find("Card_Base").GetComponent<SpriteRenderer>().sprite = spellCardSprite;
+                Destroy(cardGO.transform.Find("Card_Front").Find("Card_Stats").gameObject);
+                added.setProps(index, this, game, stonePrefab, numberCardsDrawn);
                 }
-                int index = cardsInHand.Count - 1;
+                
                 added.setProps(index, this, game, grassPrefab, numberCardsDrawn);
                 added.sortingGroup = added.gameObject.GetComponent<SortingGroup>();
                 Debug.Log(added.sortingGroup.sortingLayerName);

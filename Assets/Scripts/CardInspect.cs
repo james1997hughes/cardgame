@@ -18,7 +18,7 @@ public class CardInspect : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        monPrefab = Resources.Load<GameObject>("Prefabs/MonsterCardPrefab"); //need to add spell
+        monPrefab = Resources.Load<GameObject>("Prefabs/CardPrefab"); //need to add spell
         spellPrefab = Resources.Load<GameObject>("Prefabs/SpellCardPrefab");
         spellCardSprite = Resources.Load<Sprite>("spell_card_blank");
         reactiveSymbol = Resources.Load<Sprite>("reactive_symbol");
