@@ -13,6 +13,7 @@ public class GamePlayer : MonoBehaviour
     public string PlayerName;
     public enum PlayerType { PLAYER, ENEMY }
     public PlayerType playerType;
+    public Hand hand; //Assigned in editor
     // Start is called before the first frame update
     void Start()
     {
@@ -45,13 +46,17 @@ public class GamePlayer : MonoBehaviour
             Debug.Log(PlayerName + "has died!");
             Health = 0f;
             updateHpBar();
-            if (playerType == PlayerType.PLAYER)
+            switch (playerType)
             {
-                controller.handlePlayerDeath();
-            }
-            else if (playerType == PlayerType.ENEMY)
-            {
-                controller.handleEnemyDeath();
+                case PlayerType.PLAYER:
+                    controller.handlePlayerDeath();
+                    break;
+                case PlayerType.ENEMY:
+                    controller.handleEnemyDeath();
+                    break;
+                default:
+                    Debug.LogWarning($"Unhandled PlayerType: {playerType}");
+                    break;
             }
         }
     }

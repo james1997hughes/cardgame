@@ -12,21 +12,21 @@ public class GameController : MonoBehaviour
 {
 
     GameObject UIGO;
-    UI ui;
+    public UI ui;
 
 
     public GamePlayer? player;
     public GamePlayer? enemy;
 
 
-    Card? PlayerLane1Card;
-    Card? PlayerLane2Card;
-    Card? PlayerTrapLaneCard;
+    public Card? PlayerLane1Card;
+    public Card? PlayerLane2Card;
+    public Card? PlayerTrapLaneCard;
     //Card PlayerSpellLaneCard;
 
-    Card? EnemyLane1Card;
-    Card? EnemyLane2Card;
-    Card? EnemyTrapLaneCard;
+    public Card? EnemyLane1Card;
+    public Card? EnemyLane2Card;
+    public Card? EnemyTrapLaneCard;
     //Card enemySpellLaneCard;
 
     public Hand? playerHand; //Assigned in editor
@@ -43,6 +43,8 @@ public class GameController : MonoBehaviour
 
     bool handlingPhaseChange = false;
 
+    GameState gameState;
+
 
     // Start is called before the first frame update
     void Start()
@@ -57,12 +59,12 @@ public class GameController : MonoBehaviour
         UIGO = GameObject.Find("UI");
         ui = UIGO.GetComponent<UI>();
         ui.controller = this;
-
+        gameState = new GameState();
+        gameState.controller = this;
+        gameState.updateGameStateFromController();
 
         turn = 0;
-
         playerTurn = true;
-
     }
     public void setLane1Player(Card card)
     {
