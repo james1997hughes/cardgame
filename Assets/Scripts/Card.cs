@@ -1,19 +1,11 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 public class Card : MonoBehaviour
 {
-
-    /*
-        This class is a little bloated
-        But fixing it is a lot of work
-        If it gets bad enough to hinder progress, I will fix
-    */
     public virtual string CardName { get; set; }
     public virtual string CardDescription { get; set; }
     public virtual float HP { get; set; }
@@ -42,7 +34,7 @@ public class Card : MonoBehaviour
     public GameController controller;
 
     Vector3 InitialSpawn;
-    Vector3 restPosition;
+    public Vector3 restPosition;
 
     public bool selected = false;
     public bool inHand = false;
@@ -68,9 +60,6 @@ public class Card : MonoBehaviour
     float enemyraisedy = 4f;
 
     Vector3 defaultScale = new Vector3(0.83f, 0.83f, 1f);
-    Vector3 highlightScale = new Vector3(1.5f, 1.5f, 1f);
-    IEnumerator raiseCoro;
-    IEnumerator lowerCoro;
     // ^^Select Animation
 
     //Gameobject components
@@ -98,6 +87,8 @@ public class Card : MonoBehaviour
     void Start()
     {
 
+
+        // BEGIN VISUAL SETUP
         // Set Name
         GameObject textGO = transform.Find("Card_Front").Find("Canvas").Find("TextGO").gameObject;
         textGO.GetComponent<TextMeshProUGUI>().text = this.CardName;
@@ -125,33 +116,12 @@ public class Card : MonoBehaviour
             AbilityTextGO.GetComponent<TextMeshProUGUI>().text = this.CardDescription;
         }
 
-        //Initialise stat mods
-        StatModifiers = new Dictionary<string, float>
-        {
-            { "HP", 0 },
-            { "MonAtk", 0 },
-            { "PlayerAtk", 0 },
-            { "Def", 0 }
-        };
-
-        //Audio setup
-        audioSource = gameObject.AddComponent<AudioSource>();
-        //Define default sound effects
-        OnPlayAudio = Resources.Load<AudioClip>("Sound/Placement");
-        OnSelectAudio = Resources.Load<AudioClip>("Sound/Sliceup");
-        OnDeathAudio = null; //not sure if this is not just the same as discard, will have to playtest options
-        OnDiscardAudio = Resources.Load<AudioClip>("Sound/Discard");
-
-       
         //Stat Bars
         updateStatBars();
 
         //Mana cost
         Transform orbs = transform.Find("Card_Front").Find("Mana_Orbs");
         Transform[] transforms = orbs.GetComponentsInChildren<Transform>();
-        //Transforms[0] is the Mana_Orbs parent / container gameobject transform
-        //Orbs are at 1-5
-        //Is there a better way to do this?
 
         if (Cost < 5)
         {
@@ -173,6 +143,24 @@ public class Card : MonoBehaviour
         {
             Destroy(transforms[1].gameObject);
         }
+        //END VISUAL SETUP
+
+        //Audio setup
+        audioSource = gameObject.AddComponent<AudioSource>();
+        //Define default sound effects
+        OnPlayAudio = Resources.Load<AudioClip>("Sound/Placement");
+        OnSelectAudio = Resources.Load<AudioClip>("Sound/Sliceup");
+        OnDeathAudio = null; //not sure if this is not just the same as discard, will have to playtest options
+        OnDiscardAudio = Resources.Load<AudioClip>("Sound/Discard");
+
+        //Initialise stat mods
+        StatModifiers = new Dictionary<string, float>
+        {
+            { "HP", 0 },
+            { "MonAtk", 0 },
+            { "PlayerAtk", 0 },
+            { "Def", 0 }
+        };
 
         if (inGame)
         {
@@ -180,9 +168,99 @@ public class Card : MonoBehaviour
             dealCard();
         }
     }
+    public void resetStats()
+    {
+        StatModifiers["HP"] = 0;
+        StatModifiers["MonAtk"] = 0;
+        StatModifiers["PlayerAtk"] = 0;
+        StatModifiers["Def"] = 0;
+    }
 
+    // Interfaces / default behaviour
+    public virtual void SelectEffect()
+    {
+        //Play audio - either default or specific
+        audioSource.clip = OnSelectAudio;
+        audioSource.Play();
+
+        //Do other default select behaviour
+
+    }
+    public virtual void PlayEffect()
+    {
+        //Play audio - either default or specific
+        audioSource.clip = OnPlayAudio;
+        audioSource.Play();
+
+        //Do other default play behaviour
+
+    }
+    public virtual void PreAttackEffect()
+    {
+
+    }
+    public virtual void PostAttackEffect()
+    {
+
+    }
+    public virtual void SpellEffect()
+    {
+
+    }
+    public virtual void DiscardEffect()
+    {
+        //Play audio - either default or specific
+        audioSource.clip = OnDiscardAudio;
+        audioSource.Play();
+
+        //Do other default discard behaviour
+
+    }
+
+    // Graphic & animation logic
+    void SetupCardInPlay()
+    {
+        UIGO = GameObject.Find("UI");
+        ui = UIGO.GetComponent<UI>();// TODO refactor to controller.ui
+
+        boxCollider = gameObject.AddComponent<BoxCollider2D>();
+        if (!parentHand.playerControlled)
+        {
+            boxCollider.offset = new Vector2(0, 0); //Bound collider to the card if enemy card - clipping issues
+            boxCollider.size = new Vector2(2.25f, 3f);
+        }
+        else
+        {
+            boxCollider.offset = new Vector2(0, -2.2f); //Bound collider to below the card - selecting card moves card above hitbox
+            boxCollider.size = new Vector2(2.25f, 8f);
+        }
+
+        gameObject.transform.localScale = defaultScale;
+        if (parentHand.playerControlled)
+        {
+            transform.Find("Card_Front").gameObject.SetActive(true);
+        }
+        else
+        {
+            transform.Find("Card_Front").gameObject.SetActive(false);
+            transform.Find("Card_Back").gameObject.SetActive(true);
+        }
+
+        if (parentHand.playerControlled)
+        {
+            InitialSpawn = new Vector3(8.5f, -2.67f, -0.01f); //Approximately on top of the deck
+        }
+        else
+        {
+            InitialSpawn = new Vector3(-8f, 2.5f, -0.01f);
+        }
+        restPosition = getHandSpace();
+    }
     public void updateStatBars()
     {
+        //Currently broken, but transforms stat bars on card to represent internal values
+
+
         //this should also handle mods, maybe in a different color
         GameObject stats = transform.Find("Card_Front").Find("Card_Stats").gameObject;
         GameObject HPBar = stats.transform.Find("HPBar").Find("InnerBar").gameObject;
@@ -219,51 +297,12 @@ public class Card : MonoBehaviour
         GameObject ATKGO = transform.Find("Card_Front").Find("Canvas").Find("ATKGO").gameObject;
         ATKGO.GetComponent<TextMeshProUGUI>().text = PlayerAtk.ToString();
     }
-
-    void SetupCardInPlay()
-    {
-        UIGO = GameObject.Find("UI");
-        ui = UIGO.GetComponent<UI>();// TODO refactor to controller.ui
-
-        boxCollider = gameObject.AddComponent<BoxCollider2D>();
-        if (!parentHand.playerControlled){
-            boxCollider.offset = new Vector2(0, 0); //Bound collider to the card if enemy card - clipping issues
-            boxCollider.size = new Vector2(2.25f, 3f);
-        } else {
-            boxCollider.offset = new Vector2(0, -2.2f); //Bound collider to below the card - selecting card moves card above hitbox
-            boxCollider.size = new Vector2(2.25f, 8f);
-        }
-
-        gameObject.transform.localScale = defaultScale;
-        raiseCoro = RaiseCard();
-        lowerCoro = LowerCard();
-        if (parentHand.playerControlled)
-        {
-            transform.Find("Card_Front").gameObject.SetActive(true);
-        }
-        else
-        {
-            transform.Find("Card_Front").gameObject.SetActive(false);
-            transform.Find("Card_Back").gameObject.SetActive(true);
-        }
-
-        if (parentHand.playerControlled)
-        {
-            InitialSpawn = new Vector3(8.5f, -2.67f, -0.01f); //Approximately on top of the deck
-        }
-        else
-        {
-            InitialSpawn = new Vector3(-8f, 2.5f, -0.01f);
-        }
-        restPosition = getHandSpace();
-    }
-
     public void fixText()
     {
         transform.Find("Card_Front").Find("Canvas").GetComponent<Canvas>().sortingLayerName = sortingGroup.sortingLayerName;
         transform.Find("Card_Front").Find("Canvas").GetComponent<Canvas>().sortingOrder = sortingGroup.sortingOrder + 1;
     }
-    public void SetOrderRecursively(Transform parentTransform, int newOrder)
+    void SetOrderRecursively(Transform parentTransform, int newOrder)
     {
         foreach (Transform child in parentTransform)
         {
@@ -278,7 +317,6 @@ public class Card : MonoBehaviour
             SetOrderRecursively(child, newOrder);
         }
     }
-
     Vector3 getHandSpace()
     {
         if (parentHand.playerControlled)
@@ -290,7 +328,6 @@ public class Card : MonoBehaviour
             return new Vector3(3.04f - (2f * PositionInHand), enemylowery, -1f + (0.1f * PositionInHand));
         }
     }
-
     void dealCard()
     {
         gameObject.transform.position = InitialSpawn;
@@ -306,16 +343,10 @@ public class Card : MonoBehaviour
         restPosition = getHandSpace();
         StartCoroutine(returnCardAnim());
     }
-    IEnumerator returnCardAnim()
+    public IEnumerator returnCardAnim()
     {
         gameObject.transform.localScale = defaultScale;
         returning = true;
-        try
-        {
-            StopCoroutine(lowerCoro);
-            StopCoroutine(raiseCoro);
-        }
-        catch { }
         while (Vector3.Distance(gameObject.transform.position, restPosition) > 0.005f)
         {
             float step = speed * Time.deltaTime;
@@ -324,8 +355,6 @@ public class Card : MonoBehaviour
         }
         returning = false;
     }
-
-
     void Update()
     {
         if (mouseDown && parentHand.playerControlled)
@@ -335,8 +364,6 @@ public class Card : MonoBehaviour
                 sortingGroup.sortingLayerName = "cards_active";
                 fixText();
                 dragging = true;
-                StopCoroutine(lowerCoro);
-                StopCoroutine(raiseCoro);
                 Vector3 screenPoint = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
                 Vector3 dragPos = new Vector3(screenPoint.x, screenPoint.y, transform.position.z);
                 gameObject.transform.position = dragPos;
@@ -363,7 +390,6 @@ public class Card : MonoBehaviour
         }
 
     }
-
     void checkAttackBounds()
     {
         Vector3 releasePoint = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
@@ -399,8 +425,6 @@ public class Card : MonoBehaviour
 
 
     }
-
-
     void checkLaneBounds()
     {
         Vector3 releasePoint = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
@@ -408,7 +432,7 @@ public class Card : MonoBehaviour
 
         if (ui.discardLaneGO.GetComponent<Collider2D>().bounds.Contains(releasePoint))
         {
-            parentHand.discard(this);
+            controller.tryDiscard(this, parentHand);
         }
         else
         {
@@ -432,157 +456,17 @@ public class Card : MonoBehaviour
             //...
         }
     }
-
-    public void playCard(Lanes lane)
-    {
-        //AI play
-        //Lane: 1=1, 2=2, 3=trap, 4=discard
-        inHand = false;
-        transform.Find("Card_Front").gameObject.SetActive(true);
-        transform.Find("Card_Back").gameObject.SetActive(false);
-        parentHand.numberCardsPlayed += 1;
-        sortingGroup.sortingLayerName = "cards_played";
-        sortingGroup.sortingOrder = parentHand.numberCardsPlayed;
-        fixText();
-        switch (lane)
-        {
-            case Lanes.MONSTER_LANE_1:
-                inLane = true;
-                restPosition = parentHand.playerControlled ? ui.monLane1GO.transform.position : ui.enemyMonLane1GO.transform.position;
-                parentHand.adjustSpellSlotCurrent(Cost);
-                PlayEffect();
-                break;
-            case Lanes.MONSTER_LANE_2:
-                inLane = true;
-                restPosition = parentHand.playerControlled ? ui.monLane2GO.transform.position : ui.enemyMonLane2GO.transform.position;
-                parentHand.adjustSpellSlotCurrent(Cost);
-                PlayEffect();
-                break;
-            case Lanes.TRAP_LANE:
-                inLane = true;
-                restPosition = parentHand.playerControlled ? ui.trapLaneGO.transform.position : ui.enemyTrapLaneGO.transform.position;
-                parentHand.adjustSpellSlotCurrent(Cost);
-                PlayEffect(); // Maybe trapeffect in future
-                break;
-            case Lanes.DISCARD_LANE:
-                transform.Find("Card_Front").gameObject.SetActive(false);
-                transform.Find("Card_Back").gameObject.SetActive(true);
-                restPosition = parentHand.playerControlled ? ui.discardLaneGO.transform.position : ui.enemyDiscardLaneGO.transform.position;
-                DiscardEffect();
-                break;
-        }
-        StartCoroutine(returnCardAnim());
-    }
-
-    public virtual void SelectEffect()
-    {
-        //Play audio - either default or specific
-        audioSource.clip = OnSelectAudio;
-        audioSource.Play();
-
-        //Do other default select behaviour
-
-    }
-    public virtual void PlayEffect(){
-        //Play audio - either default or specific
-        audioSource.clip = OnPlayAudio;
-        audioSource.Play();
-
-        //Do other default play behaviour
-
-    }
-    public virtual void PreAttackEffect()
-    {
-        
-    }
-    public virtual void PostAttackEffect()
-    {
-        
-    }
-    public virtual void SpellEffect()
-    {
-
-    }
-    public virtual void DiscardEffect()
-    {
-        //Play audio - either default or specific
-        audioSource.clip = OnDiscardAudio;
-        audioSource.Play();
-
-        //Do other default discard behaviour
-
-    }
-
-    public void resetStats()
-    {
-        StatModifiers["HP"] = 0;
-        StatModifiers["MonAtk"] = 0;
-        StatModifiers["PlayerAtk"] = 0;
-        StatModifiers["Def"] = 0;
-    }
-
-
-    IEnumerator RaiseCard()
-    {
-        gameObject.transform.localScale = highlightScale;
-        //gameObject.transform.position = gameObject.transform.position - new Vector3(0f,0f, 1f);
-        sortingGroup.sortingLayerName = "cards_active";
-        sortingGroup.sortingOrder = cardNumber + 100;
-        fixText();
-        while (gameObject.transform.position.y != raisedy)
-        {
-
-            if (gameObject.transform.position.y > raisedy) { gameObject.transform.position = new Vector3(gameObject.transform.position.x, raisedy, gameObject.transform.position.z); }
-            if (gameObject.transform.position.y < raisedy)
-            {
-                gameObject.transform.position = gameObject.transform.position + new Vector3(0, speed * Time.deltaTime, 0);
-            }
-
-            yield return null;
-        }
-    }
-
-    IEnumerator LowerCard()
-    {
-        gameObject.transform.localScale = defaultScale;
-        // gameObject.transform.position = gameObject.transform.position + new Vector3(0f,0f, 1f);
-        sortingGroup.sortingLayerName = "cards_active";
-        sortingGroup.sortingOrder = cardNumber;
-        fixText();
-        while (gameObject.transform.position.y != lowery)
-        {
-
-            if (gameObject.transform.position.y < lowery) { gameObject.transform.position = new Vector3(gameObject.transform.position.x, lowery, gameObject.transform.position.z); }
-            if (gameObject.transform.position.y > lowery)
-            {
-                gameObject.transform.position = gameObject.transform.position - new Vector3(0, speed * Time.deltaTime, 0);
-            }
-
-            yield return null;
-        }
-    }
-
     void OnMouseEnter()
     {
-        //Coroutines are not the best way to do this
-        //Probably have a Y position movement function running when y is not the hand default to a value N
-        //on mouse enter, set N = -1.74f, on mouse exit set N=-3.74f
-        //but who cares idk
         if (inGame)
         {
             if (inHand && !selected && !dragging && !returning && parentHand.playerControlled)
             {
-                StopCoroutine(raiseCoro);
-                StopCoroutine(lowerCoro);
-                raiseCoro = RaiseCard();
-
                 restPosition.y = raisedy;
-
-                StartCoroutine(raiseCoro);
+                StartCoroutine(returnCardAnim());
             }
         }
     }
-
     void OnMouseExit()
     {
         if (inGame)
@@ -591,48 +475,39 @@ public class Card : MonoBehaviour
             {
                 if (!dragging && !returning)
                 {
-                    StopCoroutine(raiseCoro);
-                    StopCoroutine(lowerCoro);
-                    lowerCoro = LowerCard();
-
-                    StartCoroutine(lowerCoro);
+                    restPosition.y = lowery;
+                    StartCoroutine(returnCardAnim());
                 }
-                restPosition.y = lowery;
+
             }
         }
 
     }
-
     void OnMouseDown()
     {
         mouseDown = true;
         mousePosAtDown = Input.mousePosition;
 
     }
-
     void OnMouseUp()
     {
         mouseDown = false;
         mousePosAtDown = new Vector3(0, 0, 5); //Reset
 
     }
-
     void OnMouseUpAsButton()
     {
         if (inHand && parentHand.playerControlled)
         {
-            if (selected && !dragging)
-            {
-                selected = false;
-                //Debug.Log("Selected: " + selected.ToString());
-                return;
-            }
-
-            if (!selected && !dragging)
+            if (!selected && !dragging) // Select a card
             {
                 selected = true;
                 SelectEffect();
-                // Debug.Log("Selected: " + selected.ToString());
+                return;
+            }
+            if (selected && !dragging) // Deselect a card
+            {
+                selected = false;
                 return;
             }
         }

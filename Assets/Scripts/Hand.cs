@@ -135,17 +135,6 @@ public class Hand : MonoBehaviour
         return deck.OrderBy(_ => UnityEngine.Random.value).ToList();
     }
 
-    public void discard(Card card)
-    {
-        card.playCard(Lanes.DISCARD_LANE);
-
-        if (!cardsInHand.Remove(card))
-        {
-            Debug.Log("Card failed to remove!");
-        };
-        drawCards(1);
-    }
-
     // Update is called once per frame
     void Update()
     {
