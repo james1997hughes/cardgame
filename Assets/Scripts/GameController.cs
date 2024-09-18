@@ -241,6 +241,16 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public void phaseButton()
+    {
+        if (!gameRunning){
+            startGame();
+        }
+        else{
+            nextPhase();
+        }
+    }
+
     IEnumerator nextPhaseCoroutine()
     {
         if (!handlingPhaseChange)
@@ -255,8 +265,17 @@ public class GameController : MonoBehaviour
             }
             else if (turnPhase == TurnPhase.SUMMON)
             {
-                turnPhase = TurnPhase.ATTACK;
-                yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true));
+                if (turn == 1)
+                {
+                    turnPhase = TurnPhase.DRAW;
+                    handleEndOfTurn();
+                }
+                else
+                {
+                    turnPhase = TurnPhase.ATTACK;
+                    yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true));
+                }
+
             }
             else if (turnPhase == TurnPhase.ATTACK)
             {

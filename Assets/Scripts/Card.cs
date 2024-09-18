@@ -62,7 +62,7 @@ public class Card : MonoBehaviour
 
     public Vector3 defaultScale = new Vector3(0.83f, 0.83f, 1f);
 
-    public Vector3 viewScale = new Vector3(2f, 2f, 0f);
+    public Vector3 viewScale = new Vector3(2f, 2f, 1f);
     // ^^Select Animation
 
     //Gameobject components
