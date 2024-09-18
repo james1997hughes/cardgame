@@ -144,7 +144,8 @@ public class GameController : MonoBehaviour
                 card.sortingGroup.sortingLayerName = "cards_played";
                 card.sortingGroup.sortingOrder = card.parentHand.numberCardsPlayed;
                 card.fixText();
-
+                card.transform.localScale = card.defaultScale;
+            
                 switch (lane.lane)
                 {
                     case Lanes.MONSTER_LANE_1:

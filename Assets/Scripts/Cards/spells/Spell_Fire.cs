@@ -20,7 +20,7 @@ namespace Cards
             this.subjectSprite = Resources.LoadAll<Sprite>("spells")[24];
             isMonster = false;
             isSpell = true;
-            canBeTrap = true;
+            canBeTrap = false;
 
             CardName = "Fire";
             CardDescription = "Destroy attacking monster";
