@@ -1,5 +1,8 @@
-using System.Collections.Generic;
 
+using System.Collections.Generic;
+using UnityEngine;
+
+#nullable enable
 public class GameState
 {
     // Dumb AI to start - Plays immediate best move, doesn't look ahead
@@ -9,31 +12,38 @@ public class GameState
     public float friendlyPlayerHealth {get; set;} //Just use friendlyPlayer.Health you idiot <- AI autocompleted that insult
     public float enemyPlayerHealth {get; set;} 
 
-    public List<Card> friendlyCardsInHand {get; set;}
-    public List<Card> enemyCardsInHand {get; set;}
-    public Card friendlyMonLane1Card {get; set;}
-    public Card friendlyMonLane2Card {get; set;}
-    public Card enemyMonLane1Card {get; set;}
-    public Card enemyMonLane2Card {get; set;}
+    public List<Card>? friendlyCardsInHand {get; set;}
+    public List<Card>? enemyCardsInHand {get; set;}
+    public Card? friendlyMonLane1Card {get; set;}
+    public Card? friendlyMonLane2Card {get; set;}
+    public Card? enemyMonLane1Card {get; set;}
+    public Card? enemyMonLane2Card {get; set;}
     public float friendlySpellSlotCurrent {get; set;}
     public float enemySpellSlotCurrent {get; set;}
-
-
-
-
-
-
 
     public UI ui {get; set;}
     public GameController controller {get; set;}
 
     List<Move> playedMoves {get; set;}
 
+    public GameState(GamePlayer player, GamePlayer enemy, GameController controller){
+        this.controller = controller;
+        ui = controller.ui;
+        playedMoves = new List<Move>();
+        friendlyPlayer = player;
+        enemyPlayer = enemy;
+        friendlyPlayerHealth = friendlyPlayer.Health;
+        enemyPlayerHealth = enemyPlayer.Health;
+        friendlyCardsInHand = friendlyPlayer.hand.cardsInHand;
+        enemyCardsInHand = enemyPlayer.hand.cardsInHand;
+        friendlyMonLane1Card = null;
+        friendlyMonLane2Card = null;
+        enemyMonLane1Card = null;
+        enemyMonLane2Card = null;
+    }   
 
     GameState copyGameState(){
-        GameState copy = new GameState();
-        copy.friendlyPlayer = friendlyPlayer;
-        copy.enemyPlayer = enemyPlayer;
+        GameState copy = new GameState(friendlyPlayer, enemyPlayer, controller);
         copy.friendlyPlayerHealth = friendlyPlayerHealth;
         copy.enemyPlayerHealth = enemyPlayerHealth;
         copy.friendlyCardsInHand = friendlyCardsInHand;
@@ -50,6 +60,7 @@ public class GameState
 
     public void addMove(Move move){
         playedMoves.Add(move);
+        updateStateWithMove(move); //Could use updateGameStateFromController. This relies on logic being the same
     }
     public void updateGameStateFromController(){
         friendlyPlayer = controller.player;
@@ -69,11 +80,21 @@ public class GameState
     void updateStateWithMove(Move move){
         // Update game state variables with move
         if (move.moveType == MoveType.SUMMON){
-            if (move.laneTarget == ui.monLane1){
-                friendlyMonLane1Card = move.card;
+            if (move.laneTarget == Lanes.MONSTER_LANE_1){
+                if(move.player.playerType == GamePlayer.PlayerType.PLAYER && friendlyMonLane1Card == null){
+                    friendlyMonLane1Card = move.card;
+                }
+                if(move.player.playerType == GamePlayer.PlayerType.ENEMY && enemyMonLane1Card == null){
+                    enemyMonLane1Card = move.card;
+                }
             }
-            else if (move.laneTarget == ui.monLane2){
-                friendlyMonLane2Card = move.card;
+            else if (move.laneTarget == Lanes.MONSTER_LANE_2){
+                if(move.player.playerType == GamePlayer.PlayerType.PLAYER && friendlyMonLane2Card == null){
+                    friendlyMonLane2Card = move.card;
+                }
+                if(move.player.playerType == GamePlayer.PlayerType.ENEMY && enemyMonLane2Card == null){
+                    enemyMonLane2Card = move.card;
+                }
             }
         }
         else if (move.moveType == MoveType.ATTACK_MONSTER){ // First 2 ifs are repeating from the controller, should be a function 
@@ -150,7 +171,7 @@ public class GameState
         return bestMove;
     }*/
 
-    public Move getImmediateBestMove(GamePlayer player){
+    public IEnumerator<Move> getImmediateBestMove(GamePlayer player, System.Action<Move> callback){
         // For all possible current moves, return move with highest strength outcome
         // To make recursive, recurse this function up to a depth, then finally call evaluateGameState
         // Keeping track of the best overall move after depth recursions 
@@ -168,7 +189,8 @@ public class GameState
                 bestMove = move;
             }
         }
-        return bestMove;
+        yield return null;
+        callback(bestMove);
     }
 
 
@@ -238,8 +260,8 @@ public class GameState
         Card ownLane2Card = player.playerType == GamePlayer.PlayerType.PLAYER ? state.friendlyMonLane2Card : state.enemyMonLane2Card;
         //Lane ownTrapLane = player == friendlyPlayer ? ui.trapLane : ui.enemyTrapLane;
 
-        Card enemyLane1Card = opponentPlayer.playerType == GamePlayer.PlayerType.PLAYER ? state.enemyMonLane1Card : state.friendlyMonLane1Card;
-        Card enemyLane2Card = opponentPlayer.playerType == GamePlayer.PlayerType.PLAYER ? state.enemyMonLane2Card : state.friendlyMonLane2Card;
+        Card opponentLane1Card = player.playerType == GamePlayer.PlayerType.PLAYER ? state.enemyMonLane1Card : state.friendlyMonLane1Card;
+        Card opponentLane2Card = player.playerType == GamePlayer.PlayerType.PLAYER ? state.enemyMonLane2Card : state.friendlyMonLane2Card;
         //Lane enemyTrapLane = player == friendlyPlayer ? ui.enemyTrapLane : ui.trapLane;
 
         // 1. Playing cards from hand
@@ -249,11 +271,21 @@ public class GameState
                 if (card.Cost <= (player == friendlyPlayer ? state.friendlySpellSlotCurrent : state.enemySpellSlotCurrent))
                 {
                         // Monster cards can be played in empty lanes
-                        if (player == friendlyPlayer ? state.friendlyMonLane1Card == null : state.enemyMonLane1Card == null){
-                            possibleMoves.Add(new Move(MoveType.SUMMON, card, ownLane1Card, SourceLane.MON_LANE_1, player));
+                        if (player == friendlyPlayer){
+                            if (state.friendlyMonLane1Card == null){
+                                possibleMoves.Add(new Move(MoveType.SUMMON, card, Lanes.MONSTER_LANE_1, player));
+                            }
+                            if (state.friendlyMonLane2Card == null){
+                                possibleMoves.Add(new Move(MoveType.SUMMON, card, Lanes.MONSTER_LANE_2, player));
+                            }
                         }
-                        if (player == friendlyPlayer ? state.friendlyMonLane2Card == null : state.enemyMonLane2Card == null){
-                            possibleMoves.Add(new Move(MoveType.SUMMON, card, ownLane2Card, SourceLane.MON_LANE_2, player));
+                        else if (player == enemyPlayer){
+                            if (state.enemyMonLane1Card == null){
+                                possibleMoves.Add(new Move(MoveType.SUMMON, card, Lanes.MONSTER_LANE_1, player));
+                            }
+                            if (state.enemyMonLane2Card == null){
+                                possibleMoves.Add(new Move(MoveType.SUMMON, card, Lanes.MONSTER_LANE_2, player));
+                            }
                         }
                 }
             }
@@ -263,11 +295,11 @@ public class GameState
         if (controller.turnPhase == GameController.TurnPhase.ATTACK){
             if (ownLane1Card != null)
             {
-                if (enemyLane1Card != null){
-                    possibleMoves.Add(new Move(MoveType.ATTACK_MONSTER, ownLane1Card, enemyLane1Card, SourceLane.MON_LANE_1, player));
+                if (opponentLane1Card != null){
+                    possibleMoves.Add(new Move(MoveType.ATTACK_MONSTER, ownLane1Card, opponentLane1Card, SourceLane.MON_LANE_1, player));
                 }
-                else if (enemyLane2Card != null){
-                    possibleMoves.Add(new Move(MoveType.ATTACK_MONSTER, ownLane1Card, enemyLane2Card, SourceLane.MON_LANE_1, player));
+                else if (opponentLane2Card != null){
+                    possibleMoves.Add(new Move(MoveType.ATTACK_MONSTER, ownLane1Card, opponentLane2Card, SourceLane.MON_LANE_1, player));
                 }
                 else{
                     possibleMoves.Add(new Move(MoveType.ATTACK_PLAYER, ownLane1Card, opponentPlayer, SourceLane.MON_LANE_1, player));
@@ -276,11 +308,11 @@ public class GameState
 
             if (ownLane2Card != null)
             {
-                if (enemyLane1Card != null){
-                    possibleMoves.Add(new Move(MoveType.ATTACK_MONSTER, ownLane2Card, enemyLane1Card, SourceLane.MON_LANE_2, player));
+                if (opponentLane1Card != null){
+                    possibleMoves.Add(new Move(MoveType.ATTACK_MONSTER, ownLane2Card, opponentLane1Card, SourceLane.MON_LANE_2, player));
                 }
-                else if (enemyLane2Card != null){
-                    possibleMoves.Add(new Move(MoveType.ATTACK_MONSTER, ownLane2Card, enemyLane2Card, SourceLane.MON_LANE_2, player));
+                else if (opponentLane2Card != null){
+                    possibleMoves.Add(new Move(MoveType.ATTACK_MONSTER, ownLane2Card, opponentLane2Card, SourceLane.MON_LANE_2, player));
                 }
                 else{
                     possibleMoves.Add(new Move(MoveType.ATTACK_PLAYER, ownLane2Card, opponentPlayer, SourceLane.MON_LANE_2, player));

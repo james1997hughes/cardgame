@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
@@ -46,7 +47,6 @@ public class GameController : MonoBehaviour
     GameState gameState;
 
 
-    // Start is called before the first frame update
     void Start()
     {
 
@@ -54,14 +54,12 @@ public class GameController : MonoBehaviour
         player.controller = this;
         enemy = GameObject.Find("EnemyGamePlayer").gameObject.GetComponent<GamePlayer>();
         enemy.controller = this;
+
         player.updateHpBar();
         enemy.updateHpBar();
         UIGO = GameObject.Find("UI");
         ui = UIGO.GetComponent<UI>();
         ui.controller = this;
-        gameState = new GameState();
-        gameState.controller = this;
-        gameState.updateGameStateFromController();
 
         turn = 0;
         playerTurn = true;
@@ -100,18 +98,15 @@ public class GameController : MonoBehaviour
     }
 
     //Attack enemyplayer, not card
-    public void attackEnemy(float damage)
+    public void attackGamePlayer(GamePlayer playerToAttack, float damage)
     {
-        if (EnemyLane1Card == null && EnemyLane2Card == null)
+        if (playerToAttack == player && PlayerLane1Card == null && PlayerLane2Card == null)
         {
-            enemy.takeHit(damage);
-        }
-    }
-    public void attackPlayer(float damage)
-    {
-        if (PlayerLane1Card == null && PlayerLane2Card == null)
+            playerToAttack.takeHit(damage);
+        } 
+        else if (playerToAttack == enemy && EnemyLane1Card == null && EnemyLane2Card == null)
         {
-            player.takeHit(damage);
+            playerToAttack.takeHit(damage);
         }
     }
     public void tryDiscard(Card card, Hand hand)
@@ -127,18 +122,63 @@ public class GameController : MonoBehaviour
         }
         hand.drawCards(1);
     }
-    public void tryPlayCard(Card card, Hand hand, Lane lane)
+    public void tryPlayCard(Card card, Hand hand, Lanes lane)
     {
         if (hand.spellSlotCurrent - card.Cost >= 0)
         {
-            if (lane.card == null)
-            { //Card can be played
+            if (hand.playerControlled){
+                if (lane == Lanes.MONSTER_LANE_1){
+                    if (PlayerLane1Card == null){
+                        PlayerLane1Card = card;
+                        card.lane = ui.monLane1;
+                        playCard(card, lane, hand);
+                    }
+                }
+                else if (lane == Lanes.MONSTER_LANE_2){
+                    if (PlayerLane2Card == null){
+                        PlayerLane2Card = card;
+                        card.lane = ui.monLane2;
+                        playCard(card, lane, hand);
+                    }
+                }
+                else if (lane == Lanes.TRAP_LANE){
+                    if (PlayerTrapLaneCard == null){
+                        PlayerTrapLaneCard = card;
+                        card.lane = ui.trapLane;
+                        playCard(card, lane, hand);
+                    }
+                }
+            } else if (hand.playerControlled == false){ // Enemy move
+                if (lane == Lanes.MONSTER_LANE_1){
+                    if (EnemyLane1Card == null){
+                        EnemyLane1Card = card;
+                        card.lane = ui.enemyMonLane1;
+                        playCard(card, lane, hand);
+                    }
+                }
+                else if (lane == Lanes.MONSTER_LANE_2){
+                    if (EnemyLane2Card == null){
+                        EnemyLane2Card = card;
+                        card.lane = ui.enemyMonLane2;
+                        playCard(card, lane, hand);
+                    }
+                }
+                else if (lane == Lanes.TRAP_LANE){
+                    if (EnemyTrapLaneCard == null){
+                        EnemyTrapLaneCard = card;
+                        card.lane = ui.enemyTrapLane;
+                        playCard(card, lane, hand);
+                    }
+                }
+            }
+        }
+    }
+    private void playCard(Card card, Lanes lane, Hand hand){
                 if (!hand.cardsInHand.Remove(card))
                 { // Remove card from parent hand
                     Debug.Log("Card failed to remove!");
                 }
 
-                lane.card = card;
                 card.inHand = false;
                 card.transform.Find("Card_Front").gameObject.SetActive(true);
                 card.transform.Find("Card_Back").gameObject.SetActive(false);
@@ -147,7 +187,7 @@ public class GameController : MonoBehaviour
                 card.sortingGroup.sortingOrder = card.parentHand.numberCardsPlayed;
                 card.fixText();
 
-                switch (lane.lane)
+                switch (lane)
                 {
                     case Lanes.MONSTER_LANE_1:
                         card.inLane = true;
@@ -169,22 +209,38 @@ public class GameController : MonoBehaviour
                         break;
                 }
                 StartCoroutine(card.returnCardAnim());
-
-            }
-            else
-            {
-                Debug.Log("Lane already occupied!");
-            }
-        }
     }
     public void attackCard(Card attackingCard, Card defendingCard)
     {
 
         StartCoroutine(doCardAttack(attackingCard, defendingCard));
     }
+    
+    public IEnumerator executeMove(Move move){
+        Debug.Log("Executing move\n"+move.ToString());
+        switch (move.moveType){
+            case MoveType.SUMMON:
+                tryPlayCard(move.card, move.player.hand, move.laneTarget);
+                break;
+            case MoveType.ATTACK_MONSTER:
+                yield return StartCoroutine(doCardAttack(move.card, move.cardTarget));
+                break;
+            case MoveType.ATTACK_PLAYER:
+                float playerDamage = move.card.MonAtk + move.card.StatModifiers["MonAtk"];
+                attackGamePlayer(move.playerTarget, playerDamage);
+                break;
+            case MoveType.PASS:
+                break;
+            default:
+                break;
+        }
+        gameState.addMove(move);
+        gameState.updateGameStateFromController();
+        yield return null;
+    }
     IEnumerator doCardAttack(Card attackingCard, Card defendingCard)
     {
-        Debug.Log(attackingCard.CardName + " is attacking " + defendingCard.CardName);
+        Debug.Log(attackingCard.CardName + " is now attacking " + defendingCard.CardName);
 
         attackingCard.PreAttackEffect();
         //probably in future do pre defence effect
@@ -210,26 +266,45 @@ public class GameController : MonoBehaviour
 
         if (attackingCard.HP <= 0)
         {
-            KillCard(attackingCard);
+            yield return StartCoroutine(KillCard(attackingCard));
         }
         if (defendingCard.HP <= 0)
         {
-            KillCard(attackingCard);
+            yield return StartCoroutine(KillCard(defendingCard));
         }
 
 
         attackingCard.PostAttackEffect();
+        yield return null;
     }
 
-    void KillCard(Card card)
+    IEnumerator KillCard(Card card)
     {
-        card.lane.card = null;//??
+        Debug.Log("Killing "+card.CardName);
+        if (card.parentHand.playerControlled){
+            if (card.lane.lane == Lanes.MONSTER_LANE_1){
+                gameState.friendlyMonLane1Card = null;
+            }
+            if (card.lane.lane == Lanes.MONSTER_LANE_2){
+                gameState.friendlyMonLane2Card = null;
+            }
+        }else{
+            if (card.lane.lane == Lanes.MONSTER_LANE_1){
+                gameState.enemyMonLane1Card = null;
+            }
+            if (card.lane.lane == Lanes.MONSTER_LANE_2){
+                gameState.enemyMonLane2Card = null;
+            }
+        }
+        card.lane.card = null;
         Destroy(card.gameObject);
+        yield return null;
     }
 
     IEnumerator cardAttackAnimation(Card attackingCard, Card defendingCard)
     {
         //swoosh BAM
+        Debug.Log($"Attack animation: {attackingCard.CardName} attacks {defendingCard.CardName}");
         yield return null;
     }
 
@@ -291,12 +366,14 @@ public class GameController : MonoBehaviour
 
     IEnumerator handleGame()
     {
+        gameState = new GameState(player, enemy, this);
         while (gameRunning)
         {
             if (playerTurn)
             {
                 if (turnPhase == TurnPhase.DRAW)
                 {
+                    gameState.updateGameStateFromController();
                     yield return StartCoroutine(ui.handleTextDisplay(isEndOfTurn: true)); //ABIGAILS TURN
                     playerHand.adjustSpellSlotCurrent(0, max: true);
                     yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true)); //DRAW PHASE
@@ -324,12 +401,15 @@ public class GameController : MonoBehaviour
                 }
                 else if (turnPhase == TurnPhase.SUMMON)
                 {
-                    yield return StartCoroutine(EnemySummon());
+                    yield return new WaitForSeconds(1.5f);
+                    yield return StartCoroutine(EnemyMove());
                     yield return StartCoroutine(nextPhaseCoroutine());                      //ATTACK PHASE       
                 }
                 else if (turnPhase == TurnPhase.ATTACK)
                 {
-                    yield return StartCoroutine(EnemyAttack());
+                    //yield return StartCoroutine(EnemyAttack());
+                    yield return new WaitForSeconds(1.5f);
+                    yield return StartCoroutine(EnemyMove());
                     yield return StartCoroutine(nextPhaseCoroutine());
                 }
             }
@@ -343,15 +423,30 @@ public class GameController : MonoBehaviour
         int randomIndex = UnityEngine.Random.Range(0, hand.cardsInHand.Count);
         return hand.cardsInHand[randomIndex];
     }
-    IEnumerator EnemySummon()
+    IEnumerator EnemyMove()
     {
-        yield return new WaitForSeconds(1f);
-        tryPlayCard(chooseRandomCardFromHand(enemyHand), enemyHand, ui.enemyMonLane1);
-        yield return new WaitForSeconds(0.5f);
-        tryPlayCard(chooseRandomCardFromHand(enemyHand), enemyHand, ui.enemyMonLane2);
-        yield return new WaitForSeconds(0.5f);
-        tryPlayCard(chooseRandomCardFromHand(enemyHand), enemyHand, ui.enemyTrapLane);
-        yield return new WaitForSeconds(1f);
+        int maxMoves = 3;
+        int movesMade = 0;
+        while (enemyHand.spellSlotCurrent > 0 && movesMade < maxMoves){
+            Move moveToMake = null;
+            movesMade += 1;
+            Debug.Log("Finding Best Move");
+            yield return StartCoroutine(gameState.getImmediateBestMove(enemy, (move) => {
+                if (move != null){
+                    moveToMake = move;
+                }else{
+                    return;
+                }
+                
+            }));
+            if (moveToMake != null){
+                Debug.Log(moveToMake.ToString());
+                yield return executeMove(moveToMake);
+                yield return new WaitForSeconds(1);
+            }
+        }
+
+        yield return null;
     }
 
     IEnumerator EnemyAttack()

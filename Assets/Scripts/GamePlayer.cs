@@ -14,7 +14,7 @@ public class GamePlayer : MonoBehaviour
     public enum PlayerType { PLAYER, ENEMY }
     public PlayerType playerType;
     public Hand hand; //Assigned in editor
-    // Start is called before the first frame update
+
     void Start()
     {
         hpBarTransform = transform.Find("HealthBarContainer");
@@ -22,11 +22,6 @@ public class GamePlayer : MonoBehaviour
         nameTextComponent.text = PlayerName;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     public void updateHpBar()
     {
         float scaleVal = Health + (0.07f * Health);

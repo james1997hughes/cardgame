@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,7 +23,7 @@ public class Move
     public MoveType moveType;
     public Card cardTarget;
     public GamePlayer playerTarget;
-    public Lane laneTarget;
+    public Lanes laneTarget;
     public SourceLane sourceLane;
     public Card card; //The card being played
 
@@ -48,12 +49,11 @@ public class Move
     }
 
     // Constructor for lane summon move
-    public Move(MoveType moveType, Card card, Lane laneTarget, SourceLane sourceLane, GamePlayer player)
+    public Move(MoveType moveType, Card card, Lanes laneTarget, GamePlayer player)
     {
         this.moveType = moveType;
         this.card = card;
         this.laneTarget = laneTarget;
-        this.sourceLane = sourceLane;
         this.player = player;
     }
 
@@ -63,6 +63,21 @@ public class Move
         this.player = player;
     }
 
+
+    public override String ToString(){
+        String str = $"Player: {player.name}, Type: {moveType}\n";
+        String target = "";
+        if (moveType == MoveType.SUMMON){
+            target = $"{player.name} summons {card.CardName} to {laneTarget}!";
+        }
+        if (moveType == MoveType.ATTACK_MONSTER){
+            target = $"{player.name} attacks {cardTarget.CardName} with {card.CardName}!";
+        }
+        if (moveType == MoveType.ATTACK_PLAYER){
+            target = $"{player.name} attacks {playerTarget.name} with {card.CardName}!";
+        }
+        return str+target;
+    }
 
 
 }
