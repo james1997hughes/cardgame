@@ -186,7 +186,7 @@ public class GameController : MonoBehaviour
                 card.sortingGroup.sortingLayerName = "cards_played";
                 card.sortingGroup.sortingOrder = card.parentHand.numberCardsPlayed;
                 card.fixText();
-
+                
                 switch (lane)
                 {
                     case Lanes.MONSTER_LANE_1:

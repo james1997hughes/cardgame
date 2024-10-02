@@ -26,6 +26,7 @@ public class Card : MonoBehaviour
     public bool isMonster = false;
     public bool isSpell = false;
     public bool canBeTrap = false;
+    public bool isReactive = false;
     public int PositionInHand;
     public Sprite subjectSprite;
     public GameObject portraitBackground;
@@ -54,12 +55,14 @@ public class Card : MonoBehaviour
     // --Select Animation
     float speed = 15f;
     float lowery = -4.97f;
-    float raisedy = -2.74f;
+    float raisedy = -2.1f;
 
     float enemylowery = 6f;
     float enemyraisedy = 4f;
 
-    Vector3 defaultScale = new Vector3(0.83f, 0.83f, 1f);
+    public Vector3 defaultScale = new Vector3(0.83f, 0.83f, 1f);
+
+    public Vector3 viewScale = new Vector3(2f, 2f, 0f);
     // ^^Select Animation
 
     //Gameobject components
@@ -106,7 +109,7 @@ public class Card : MonoBehaviour
         shadow.GetComponent<SpriteRenderer>().sprite = subjectSprite;
 
         // Set Ability text
-        if (CardDescription == null)
+        if (CardDescription == null || isSpell)
         {
             Destroy(transform.Find("Card_Front").Find("AbilityBox").gameObject);
         }
@@ -114,6 +117,17 @@ public class Card : MonoBehaviour
         {
             GameObject AbilityTextGO = transform.Find("Card_Front").Find("Canvas").Find("AbilityTextGO").gameObject;
             AbilityTextGO.GetComponent<TextMeshProUGUI>().text = this.CardDescription;
+        }
+
+        //Set Spell text
+        if (isSpell)
+        {
+            GameObject SpellTextGO = transform.Find("Card_Front").Find("Canvas").Find("SpellTextGO").gameObject;
+            SpellTextGO.GetComponent<TextMeshProUGUI>().text = this.CardDescription;
+        }
+        else
+        {
+            Destroy(transform.Find("Card_Front").Find("Canvas").Find("SpellTextGO").gameObject);
         }
 
         //Stat Bars
@@ -285,17 +299,28 @@ public class Card : MonoBehaviour
         PlayerAtkBar.transform.localPosition = PlayerAtkBar.transform.localPosition + new Vector3(PlayerAtkBar.transform.localScale.x * 0.5f, 0f, 0f);
 
         // Stat Values
-        GameObject HPGO = transform.Find("Card_Front").Find("Canvas").Find("HPGO").gameObject;
-        HPGO.GetComponent<TextMeshProUGUI>().text = HP.ToString();
+        if (isSpell)
+        {
+            Destroy(transform.Find("Card_Front").Find("Canvas").Find("HPGO").gameObject);
+            Destroy(transform.Find("Card_Front").Find("Canvas").Find("MONATKGO").gameObject);
+            Destroy(transform.Find("Card_Front").Find("Canvas").Find("DEFGO").gameObject);
+            Destroy(transform.Find("Card_Front").Find("Canvas").Find("ATKGO").gameObject);
+        }
+        else
+        {
+            GameObject HPGO = transform.Find("Card_Front").Find("Canvas").Find("HPGO").gameObject;
+            HPGO.GetComponent<TextMeshProUGUI>().text = HP.ToString();
 
-        GameObject MONATKGO = transform.Find("Card_Front").Find("Canvas").Find("MONATKGO").gameObject;
-        MONATKGO.GetComponent<TextMeshProUGUI>().text = MonAtk.ToString();
+            GameObject MONATKGO = transform.Find("Card_Front").Find("Canvas").Find("MONATKGO").gameObject;
+            MONATKGO.GetComponent<TextMeshProUGUI>().text = MonAtk.ToString();
 
-        GameObject DEFGO = transform.Find("Card_Front").Find("Canvas").Find("DEFGO").gameObject;
-        DEFGO.GetComponent<TextMeshProUGUI>().text = Def.ToString();
+            GameObject DEFGO = transform.Find("Card_Front").Find("Canvas").Find("DEFGO").gameObject;
+            DEFGO.GetComponent<TextMeshProUGUI>().text = Def.ToString();
 
-        GameObject ATKGO = transform.Find("Card_Front").Find("Canvas").Find("ATKGO").gameObject;
-        ATKGO.GetComponent<TextMeshProUGUI>().text = PlayerAtk.ToString();
+            GameObject ATKGO = transform.Find("Card_Front").Find("Canvas").Find("ATKGO").gameObject;
+            ATKGO.GetComponent<TextMeshProUGUI>().text = PlayerAtk.ToString();
+        }
+
     }
     public void fixText()
     {
@@ -345,7 +370,7 @@ public class Card : MonoBehaviour
     }
     public IEnumerator returnCardAnim()
     {
-        gameObject.transform.localScale = defaultScale;
+        //gameObject.transform.localScale = defaultScale;
         returning = true;
         while (Vector3.Distance(gameObject.transform.position, restPosition) > 0.005f)
         {
@@ -437,7 +462,7 @@ public class Card : MonoBehaviour
         else
         {
             //Playables (Monsters & traps)
-            if ((isMonster || canBeTrap) && controller.turnPhase == GameController.TurnPhase.SUMMON)
+            if (isMonster && controller.turnPhase == GameController.TurnPhase.SUMMON)
             {
                 if (ui.monLane1GO.GetComponent<Collider2D>().bounds.Contains(releasePoint))
                 {
@@ -447,14 +472,18 @@ public class Card : MonoBehaviour
                 {
                     StartCoroutine(controller.executeMove(new Move(MoveType.SUMMON, this, Lanes.MONSTER_LANE_2, controller.player)));
                 }
+            }
+            if (canBeTrap && controller.turnPhase == GameController.TurnPhase.SUMMON)
+            {
                 if (ui.trapLaneGO.GetComponent<Collider2D>().bounds.Contains(releasePoint))
                 {
                     StartCoroutine(controller.executeMove(new Move(MoveType.SUMMON, this, Lanes.TRAP_LANE, controller.player)));
                 }
+                //Spells
+                //...
             }
-            //Spells
-            //...
         }
+
     }
     void OnMouseEnter()
     {
@@ -463,6 +492,7 @@ public class Card : MonoBehaviour
             if (inHand && !selected && !dragging && !returning && parentHand.playerControlled)
             {
                 restPosition.y = raisedy;
+                gameObject.transform.localScale = viewScale;
                 StartCoroutine(returnCardAnim());
             }
         }
@@ -476,6 +506,7 @@ public class Card : MonoBehaviour
                 if (!dragging && !returning)
                 {
                     restPosition.y = lowery;
+                    gameObject.transform.localScale = defaultScale;
                     StartCoroutine(returnCardAnim());
                 }
 

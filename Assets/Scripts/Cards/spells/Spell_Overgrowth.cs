@@ -20,6 +20,7 @@ namespace Cards
             isMonster = false;
             isSpell = true;
             canBeTrap = false;
+            isReactive = true;
 
             CardName = "Overgrowth";
             CardDescription = "+1 MonHP";
