@@ -45,9 +45,11 @@ namespace Cards
         {
 
         }
-        public override void SpellEffect()
+        public override void SpellEffect(Card card)
         {
-
+        card.MonAtk++;
+        Debug.Log("Card Atk:" + card.MonAtk);
+        base.SpellEffect(card);
         }
     }
 }

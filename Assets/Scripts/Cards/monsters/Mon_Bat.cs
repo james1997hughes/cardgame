@@ -26,7 +26,7 @@ namespace Cards
             canBeTrap = false;
 
             CardName = "Bat";
-            CardDescription = "+1 Player HPon Attack";
+            CardDescription = "+1 Player HP on Attack";
             HP = 1f;
             MonAtk = 2f;
             Def = 2f;
@@ -60,9 +60,6 @@ namespace Cards
             OnDiscardAudio = null;
             base.DiscardEffect();
         }
-        public override void SpellEffect()
-        {
-            base.SpellEffect();
-        }
+
     }
 }

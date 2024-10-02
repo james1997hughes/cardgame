@@ -59,10 +59,6 @@ namespace Cards
         {
             base.DiscardEffect();
         }
-        public override void SpellEffect()
-        {
-            base.SpellEffect();
-        }
 
     }
 }

@@ -186,6 +186,7 @@ public class GameController : MonoBehaviour
                 card.sortingGroup.sortingLayerName = "cards_played";
                 card.sortingGroup.sortingOrder = card.parentHand.numberCardsPlayed;
                 card.fixText();
+                card.transform.localScale = card.defaultScale;
                 
                 switch (lane)
                 {
@@ -278,25 +279,27 @@ public class GameController : MonoBehaviour
         yield return null;
     }
 
-    IEnumerator KillCard(Card card)
+    public IEnumerator KillCard(Card card)
     {
         Debug.Log("Killing "+card.CardName);
-        if (card.parentHand.playerControlled){
-            if (card.lane.lane == Lanes.MONSTER_LANE_1){
-                gameState.friendlyMonLane1Card = null;
+        if (card.lane != null){
+            if (card.parentHand.playerControlled){
+                if (card.lane.lane == Lanes.MONSTER_LANE_1){
+                    gameState.friendlyMonLane1Card = null;
+                }
+                if (card.lane.lane == Lanes.MONSTER_LANE_2){
+                    gameState.friendlyMonLane2Card = null;
+                }
+            }else{
+                if (card.lane.lane == Lanes.MONSTER_LANE_1){
+                    gameState.enemyMonLane1Card = null;
+                }
+                if (card.lane.lane == Lanes.MONSTER_LANE_2){
+                    gameState.enemyMonLane2Card = null;
+                }
             }
-            if (card.lane.lane == Lanes.MONSTER_LANE_2){
-                gameState.friendlyMonLane2Card = null;
-            }
-        }else{
-            if (card.lane.lane == Lanes.MONSTER_LANE_1){
-                gameState.enemyMonLane1Card = null;
-            }
-            if (card.lane.lane == Lanes.MONSTER_LANE_2){
-                gameState.enemyMonLane2Card = null;
-            }
+            card.lane.card = null;
         }
-        card.lane.card = null;
         Destroy(card.gameObject);
         yield return null;
     }
@@ -323,6 +326,7 @@ public class GameController : MonoBehaviour
         {
             handlingPhaseChange = true;
             Debug.Log("Next phase");
+            Debug.Log("current turn int:" + turn);
 
             if (turnPhase == TurnPhase.DRAW)
             {
@@ -331,8 +335,15 @@ public class GameController : MonoBehaviour
             }
             else if (turnPhase == TurnPhase.SUMMON)
             {
-                turnPhase = TurnPhase.ATTACK;
-                yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true));
+                if (turn > 1){
+                    turnPhase = TurnPhase.ATTACK;
+                    yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true));
+                }
+                else{
+                    turnPhase = TurnPhase.DRAW;
+                    handleEndOfTurn();
+                }
+                
             }
             else if (turnPhase == TurnPhase.ATTACK)
             {
@@ -372,12 +383,15 @@ public class GameController : MonoBehaviour
             if (playerTurn)
             {
                 if (turnPhase == TurnPhase.DRAW)
-                {
+                {                    
                     gameState.updateGameStateFromController();
                     yield return StartCoroutine(ui.handleTextDisplay(isEndOfTurn: true)); //ABIGAILS TURN
                     playerHand.adjustSpellSlotCurrent(0, max: true);
                     yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true)); //DRAW PHASE
                     playerHand.drawToMax();                                                //Draw max hand
+                    if (turn == 1){
+                        enemyHand.drawToMax();
+                    }
                     yield return StartCoroutine(nextPhaseCoroutine());                   //SUMMON PHASE
                 }
                 else if (turnPhase == TurnPhase.SUMMON)
@@ -393,10 +407,14 @@ public class GameController : MonoBehaviour
             { // Enemy Turn
                 if (turnPhase == TurnPhase.DRAW)
                 {
+
                     yield return StartCoroutine(ui.handleTextDisplay(isEndOfTurn: true)); //PIERRES TURN
                     enemyHand.adjustSpellSlotCurrent(0, max: true);
                     yield return StartCoroutine(ui.handleTextDisplay(isEndOfPhase: true)); //DRAW PHASE
                     enemyHand.drawToMax();                                                  //Draw Max Hand
+                    if (turn ==1){
+                        enemyHand.drawCards(1);
+                    }
                     yield return StartCoroutine(nextPhaseCoroutine());                      //SUMMON PHASE
                 }
                 else if (turnPhase == TurnPhase.SUMMON)

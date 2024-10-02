@@ -217,9 +217,11 @@ public class Card : MonoBehaviour
     {
 
     }
-    public virtual void SpellEffect()
+    public virtual void SpellEffect(Card card)
     {
-
+        //if spell effect used, discard card
+        parentHand.adjustSpellSlotCurrent(Cost);
+        StartCoroutine(controller.KillCard(this));
     }
     public virtual void DiscardEffect()
     {
@@ -366,6 +368,10 @@ public class Card : MonoBehaviour
         returning = false;
         PositionInHand = parentHand.cardsInHand.IndexOf(this);
         restPosition = getHandSpace();
+        //fix for the z's being all over the place
+        Vector3 newPosition = transform.position;
+        newPosition.z = 1;
+        transform.position = newPosition;
         StartCoroutine(returnCardAnim());
     }
     public IEnumerator returnCardAnim()
@@ -402,12 +408,14 @@ public class Card : MonoBehaviour
             fixText();
             if (inHand)
             {
-                Debug.Log("Checking lane bounds");
-                checkLaneBounds();
+                if(isMonster){
+                    checkLaneBounds();
+                } else if(isSpell){
+                    checkSpellBounds();
+                }
             }
             else if (inLane)
             {
-                Debug.Log("Checking attack bounds");
                 checkAttackBounds();
             }
             StartCoroutine(returnCardAnim());
@@ -485,6 +493,34 @@ public class Card : MonoBehaviour
         }
 
     }
+
+    void checkSpellBounds(){
+        Vector3 releasePoint = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
+        releasePoint.z = 1;
+        if (parentHand.spellSlotCurrent - Cost < 0){
+            Debug.Log("spell cost is greater than what you have in your hand you fucking moron the card can't be played");
+            return;
+ 
+        }
+
+        if(controller.PlayerLane1Card != null && controller.PlayerLane1Card.gameObject.GetComponent<Collider2D>().bounds.Contains(releasePoint))
+        {
+            SpellEffect(controller.PlayerLane1Card);
+        }
+        if(controller.PlayerLane2Card != null && controller.PlayerLane2Card.gameObject.GetComponent<Collider2D>().bounds.Contains(releasePoint))
+        {
+            SpellEffect(controller.PlayerLane2Card);
+        }
+        if(controller.EnemyLane1Card != null && controller.EnemyLane1Card.gameObject.GetComponent<Collider2D>().bounds.Contains(releasePoint))
+        {
+            SpellEffect(controller.EnemyLane1Card);
+        }
+        if(controller.EnemyLane2Card != null && controller.EnemyLane2Card.gameObject.GetComponent<Collider2D>().bounds.Contains(releasePoint))
+        {
+            SpellEffect(controller.EnemyLane2Card);
+        }
+    }
+
     void OnMouseEnter()
     {
         if (inGame)

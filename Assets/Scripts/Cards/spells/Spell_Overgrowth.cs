@@ -45,7 +45,7 @@ namespace Cards
         {
 
         }
-        public override void SpellEffect()
+        public override void SpellEffect(Card card)
         {
 
         }
