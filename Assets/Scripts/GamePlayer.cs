@@ -13,7 +13,8 @@ public class GamePlayer : MonoBehaviour
     public string PlayerName;
     public enum PlayerType { PLAYER, ENEMY }
     public PlayerType playerType;
-    // Start is called before the first frame update
+    public Hand hand; //Assigned in editor
+
     void Start()
     {
         hpBarTransform = transform.Find("HealthBarContainer");
@@ -21,11 +22,6 @@ public class GamePlayer : MonoBehaviour
         nameTextComponent.text = PlayerName;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
     public void updateHpBar()
     {
         float scaleVal = Health + (0.07f * Health);
@@ -45,13 +41,17 @@ public class GamePlayer : MonoBehaviour
             Debug.Log(PlayerName + "has died!");
             Health = 0f;
             updateHpBar();
-            if (playerType == PlayerType.PLAYER)
+            switch (playerType)
             {
-                controller.handlePlayerDeath();
-            }
-            else if (playerType == PlayerType.ENEMY)
-            {
-                controller.handleEnemyDeath();
+                case PlayerType.PLAYER:
+                    controller.handlePlayerDeath();
+                    break;
+                case PlayerType.ENEMY:
+                    controller.handleEnemyDeath();
+                    break;
+                default:
+                    Debug.LogWarning($"Unhandled PlayerType: {playerType}");
+                    break;
             }
         }
     }

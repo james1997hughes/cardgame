@@ -425,7 +425,7 @@ public class Card : MonoBehaviour
         {
             if (ui.enemyPortrait.GetComponent<Collider2D>().bounds.Contains(releasePoint) && controller.turnPhase == GameController.TurnPhase.ATTACK)
             { //Enemy Portrait
-                controller.attackEnemy(PlayerAtk);
+                controller.attackGamePlayer(controller.enemy, PlayerAtk);
             }
         }
 
@@ -466,18 +466,18 @@ public class Card : MonoBehaviour
             {
                 if (ui.monLane1GO.GetComponent<Collider2D>().bounds.Contains(releasePoint))
                 {
-                    controller.tryPlayCard(this, parentHand, ui.monLane1);
+                    StartCoroutine(controller.executeMove(new Move(MoveType.SUMMON, this, Lanes.MONSTER_LANE_1, controller.player)));
                 }
                 if (ui.monLane2GO.GetComponent<Collider2D>().bounds.Contains(releasePoint))
                 {
-                    controller.tryPlayCard(this, parentHand, ui.monLane2);
+                    StartCoroutine(controller.executeMove(new Move(MoveType.SUMMON, this, Lanes.MONSTER_LANE_2, controller.player)));
                 }
             }
             if (canBeTrap && controller.turnPhase == GameController.TurnPhase.SUMMON)
             {
                 if (ui.trapLaneGO.GetComponent<Collider2D>().bounds.Contains(releasePoint))
                 {
-                    controller.tryPlayCard(this, parentHand, ui.trapLane);
+                    StartCoroutine(controller.executeMove(new Move(MoveType.SUMMON, this, Lanes.TRAP_LANE, controller.player)));
                 }
                 //Spells
                 //...
