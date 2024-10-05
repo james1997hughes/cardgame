@@ -173,43 +173,56 @@ public class GameController : MonoBehaviour
             }
         }
     }
-    private void playCard(Card card, Lanes lane, Hand hand){
+    public void tryDoSpell(Card card, Card cardTarget, Hand hand){
+            Debug.Log($"Trying spell. Card: {card.CardName}, target: {cardTarget.CardName}");
+            if (hand.spellSlotCurrent - card.Cost >= 0 && cardTarget != null)
+            {
                 if (!hand.cardsInHand.Remove(card))
                 { // Remove card from parent hand
                     Debug.Log("Card failed to remove!");
                 }
+                hand.adjustSpellSlotCurrent(card.Cost);
+                card.SpellEffect(cardTarget);
+            }
 
-                card.inHand = false;
-                card.transform.Find("Card_Front").gameObject.SetActive(true);
-                card.transform.Find("Card_Back").gameObject.SetActive(false);
-                card.parentHand.numberCardsPlayed += 1; // TODO Take out
-                card.sortingGroup.sortingLayerName = "cards_played";
-                card.sortingGroup.sortingOrder = card.parentHand.numberCardsPlayed;
-                card.fixText();
-                card.transform.localScale = card.defaultScale;
-                
-                switch (lane)
-                {
-                    case Lanes.MONSTER_LANE_1:
-                        card.inLane = true;
-                        card.restPosition = card.parentHand.playerControlled ? ui.monLane1GO.transform.position : ui.enemyMonLane1GO.transform.position;
-                        card.parentHand.adjustSpellSlotCurrent(card.Cost);
-                        card.PlayEffect();
-                        break;
-                    case Lanes.MONSTER_LANE_2:
-                        card.inLane = true;
-                        card.restPosition = card.parentHand.playerControlled ? ui.monLane2GO.transform.position : ui.enemyMonLane2GO.transform.position;
-                        card.parentHand.adjustSpellSlotCurrent(card.Cost);
-                        card.PlayEffect();
-                        break;
-                    case Lanes.TRAP_LANE:
-                        card.inLane = true;
-                        card.restPosition = card.parentHand.playerControlled ? ui.trapLaneGO.transform.position : ui.enemyTrapLaneGO.transform.position;
-                        card.parentHand.adjustSpellSlotCurrent(card.Cost);
-                        card.PlayEffect(); // Maybe trapeffect in future
-                        break;
-                }
-                StartCoroutine(card.returnCardAnim());
+    }
+    private void playCard(Card card, Lanes lane, Hand hand){
+            if (!hand.cardsInHand.Remove(card))
+            { // Remove card from parent hand
+                Debug.Log("Card failed to remove!");
+            }
+
+            card.inHand = false;
+            card.transform.Find("Card_Front").gameObject.SetActive(true);
+            card.transform.Find("Card_Back").gameObject.SetActive(false);
+            card.parentHand.numberCardsPlayed += 1; // TODO Take out
+            card.sortingGroup.sortingLayerName = "cards_played";
+            card.sortingGroup.sortingOrder = card.parentHand.numberCardsPlayed;
+            card.fixText();
+            card.transform.localScale = card.defaultScale;
+            
+            switch (lane)
+            {
+                case Lanes.MONSTER_LANE_1:
+                    card.inLane = true;
+                    card.restPosition = card.parentHand.playerControlled ? ui.monLane1GO.transform.position : ui.enemyMonLane1GO.transform.position;
+                    card.parentHand.adjustSpellSlotCurrent(card.Cost);
+                    card.PlayEffect();
+                    break;
+                case Lanes.MONSTER_LANE_2:
+                    card.inLane = true;
+                    card.restPosition = card.parentHand.playerControlled ? ui.monLane2GO.transform.position : ui.enemyMonLane2GO.transform.position;
+                    card.parentHand.adjustSpellSlotCurrent(card.Cost);
+                    card.PlayEffect();
+                    break;
+                case Lanes.TRAP_LANE:
+                    card.inLane = true;
+                    card.restPosition = card.parentHand.playerControlled ? ui.trapLaneGO.transform.position : ui.enemyTrapLaneGO.transform.position;
+                    card.parentHand.adjustSpellSlotCurrent(card.Cost);
+                    card.PlayEffect(); // Maybe trapeffect in future
+                    break;
+            }
+            StartCoroutine(card.returnCardAnim());
     }
     public void attackCard(Card attackingCard, Card defendingCard)
     {
@@ -230,6 +243,9 @@ public class GameController : MonoBehaviour
                 float playerDamage = move.card.MonAtk + move.card.StatModifiers["MonAtk"];
                 attackGamePlayer(move.playerTarget, playerDamage);
                 break;
+            case MoveType.SPELL:
+                tryDoSpell(move.card, move.cardTarget, move.player.hand);
+                break;
             case MoveType.PASS:
                 break;
             default:
@@ -247,7 +263,6 @@ public class GameController : MonoBehaviour
         //probably in future do pre defence effect
 
 
-        //This does not handle tempHP TODO
         if (attackingCard.MonAtk + attackingCard.StatModifiers["MonAtk"] >= defendingCard.Def + defendingCard.StatModifiers["Def"])
         {
             defendingCard.HP -= attackingCard.MonAtk + attackingCard.StatModifiers["MonAtk"];
@@ -300,7 +315,12 @@ public class GameController : MonoBehaviour
             }
             card.lane.card = null;
         }
-        Destroy(card.gameObject);
+        try {
+            Destroy(card.gameObject);
+            // Live card stuff, such as playing an animation or sound.
+            // Should instead check if the card has a gameObject somehow
+        } catch (Exception e){
+        }
         yield return null;
     }
 
@@ -326,7 +346,6 @@ public class GameController : MonoBehaviour
         {
             handlingPhaseChange = true;
             Debug.Log("Next phase");
-            Debug.Log("current turn int:" + turn);
 
             if (turnPhase == TurnPhase.DRAW)
             {

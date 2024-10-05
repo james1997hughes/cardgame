@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -65,7 +66,11 @@ public class UI : MonoBehaviour
 
     void Update()
     {
-        updateInfoBox();
+        try {
+            updateInfoBox();
+        } catch (Exception e){
+
+        }
     }
 
     void updateInfoBox()

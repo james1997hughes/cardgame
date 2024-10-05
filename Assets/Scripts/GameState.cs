@@ -60,7 +60,7 @@ public class GameState
 
     public void addMove(Move move){
         playedMoves.Add(move);
-        updateStateWithMove(move); //Could use updateGameStateFromController. This relies on logic being the same
+        updateStateWithMove(move);
     }
     public void updateGameStateFromController(){
         friendlyPlayer = controller.player;
@@ -79,6 +79,8 @@ public class GameState
 
     void updateStateWithMove(Move move){
         // Update game state variables with move
+        // Emulates the behaviour of gameController.executeMove but on the state
+        // Should be combined in the future to manage this easier
         if (move.moveType == MoveType.SUMMON){
             if (move.laneTarget == Lanes.MONSTER_LANE_1){
                 if(move.player.playerType == GamePlayer.PlayerType.PLAYER && friendlyMonLane1Card == null){
@@ -101,11 +103,13 @@ public class GameState
             if (move.card.MonAtk + move.card.StatModifiers["MonAtk"] >= move.cardTarget.Def + move.cardTarget.StatModifiers["Def"])
                 {
                     move.cardTarget.HP -= move.card.MonAtk + move.card.StatModifiers["MonAtk"];
+                    // This affects live cards
                 }
 
             if (move.card.Def + move.card.StatModifiers["Def"] <= move.cardTarget.MonAtk + move.cardTarget.StatModifiers["MonAtk"])
                 {
                     move.card.HP -= move.cardTarget.MonAtk + move.cardTarget.StatModifiers["MonAtk"];
+                    // This affects live cards
                 }
             if (move.card.HP <= 0){
                 if (move.sourceLane == SourceLane.MON_LANE_1 && move.player.playerType == GamePlayer.PlayerType.PLAYER){
@@ -139,37 +143,25 @@ public class GameState
         else if (move.moveType == MoveType.ATTACK_PLAYER){
             if (move.playerTarget.playerType == GamePlayer.PlayerType.PLAYER){
                 friendlyPlayerHealth -= move.card.MonAtk + move.card.StatModifiers["MonAtk"];
+                //This does not affect live player health
             }
             else{
                 enemyPlayerHealth -= move.card.MonAtk + move.card.StatModifiers["MonAtk"];
+                //This does not affect live player health
             }
         }
+        else if (move.moveType == MoveType.SPELL){
+            //More complex than it seems as we're holding references to the live cards, not copies
+            // This is probably the cause of the high damage bug.
 
-        //For spells, we only need to update the spellslots and any stat mods etc.
+            //Doing the following affects the live cards as we are not creating a deep copy of cards in the state
+            //move.card.SpellEffect(move.cardTarget);
+
+            // Next time I need to create deep copy logic for the cards
+            // Making sure that all references to cards in GameState are to the GameState's own (copied) cards
+        }
 
     }
-
-
-
-    /*Move getBestMove(GamePlayer player, float depth){
-        // Generate all possible current moves
-        // for each possible current move, run a simulation of all possible best followup moves up to depth turns
-        // if the current move creates a chain leading to a greater win chance, set this is the candidate
-        // once all possible current moves have been analysed, return best move
-        List<Move> possibleMoves = getPossibleMoves(player);
-        Move bestMove = null;
-        float bestMoveStrength = -1;
-
-        foreach(Move move in possibleMoves){
-            float moveStrength = calculateWinProbability(player, depth);
-            if (moveStrength > bestMoveStrength){
-                bestMoveStrength = moveStrength;
-                bestMove = move;
-            }
-        }
-
-        return bestMove;
-    }*/
 
     public IEnumerator<Move> getImmediateBestMove(GamePlayer player, System.Action<Move> callback){
         // For all possible current moves, return move with highest strength outcome
@@ -234,17 +226,23 @@ public class GameState
         float strength = 0;
 
         // Reference to the relevant UI lanes based on the player
-        Card monLane1 = player == friendlyPlayer ? state.friendlyMonLane1Card : state.enemyMonLane1Card;
-        Card monLane2 = player == friendlyPlayer ? state.friendlyMonLane2Card : state.enemyMonLane2Card;
+        Card? monLane1 = player == friendlyPlayer ? state.friendlyMonLane1Card : state.enemyMonLane1Card;
+        Card? monLane2 = player == friendlyPlayer ? state.friendlyMonLane2Card : state.enemyMonLane2Card;
 
         if (monLane1 != null)
         {
-            strength += monLane1.HP + monLane1.MonAtk + monLane1.Def;
+            strength += monLane1.HP + monLane1.StatModifiers["HP"]
+                        + monLane1.MonAtk + monLane1.StatModifiers["MonAtk"]
+                        + monLane1.PlayerAtk + monLane1.StatModifiers["PlayerAtk"]
+                        + monLane1.Def + monLane1.StatModifiers["Def"];
         }
 
         if (monLane2 != null)
         {
-            strength += monLane2.HP + monLane2.MonAtk + monLane2.Def;
+            strength += monLane2.HP + monLane2.StatModifiers["HP"]
+                        + monLane2.MonAtk + monLane2.StatModifiers["MonAtk"]
+                        + monLane2.PlayerAtk + monLane2.StatModifiers["PlayerAtk"]
+                        + monLane2.Def + monLane2.StatModifiers["Def"];
         }
 
         return strength;
@@ -265,10 +263,10 @@ public class GameState
         //Lane enemyTrapLane = player == friendlyPlayer ? ui.enemyTrapLane : ui.trapLane;
 
         // 1. Playing cards from hand
-        if (controller.turnPhase == GameController.TurnPhase.SUMMON){
+        if (controller.turnPhase == GameController.TurnPhase.SUMMON && playableCards.Count > 0){
             foreach (Card card in playableCards)
             {
-                if (card.Cost <= (player == friendlyPlayer ? state.friendlySpellSlotCurrent : state.enemySpellSlotCurrent))
+                if (card.Cost <= (player == friendlyPlayer ? state.friendlySpellSlotCurrent : state.enemySpellSlotCurrent) && card.isMonster)
                 {
                         // Monster cards can be played in empty lanes
                         if (player == friendlyPlayer){
@@ -316,6 +314,20 @@ public class GameState
                 }
                 else{
                     possibleMoves.Add(new Move(MoveType.ATTACK_PLAYER, ownLane2Card, opponentPlayer, SourceLane.MON_LANE_2, player));
+                }
+            }
+        }
+
+        // 3. Use spells
+        if (controller.turnPhase == GameController.TurnPhase.ATTACK || controller.turnPhase == GameController.TurnPhase.SUMMON && playableCards.Count > 0){
+            foreach (Card card in playableCards) {
+                if (card.isSpell && card.Cost <= (player == friendlyPlayer ? state.friendlySpellSlotCurrent : state.enemySpellSlotCurrent)){
+                    if (ownLane1Card != null){
+                        possibleMoves.Add(new Move(MoveType.SPELL, card, ownLane1Card, player));
+                    }
+                    if (ownLane2Card != null){
+                        possibleMoves.Add(new Move(MoveType.SPELL, card, ownLane2Card, player));
+                    }
                 }
             }
         }

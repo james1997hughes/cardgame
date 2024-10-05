@@ -7,6 +7,7 @@ public enum MoveType{
     SUMMON,
     ATTACK_MONSTER,
     ATTACK_PLAYER,
+    SPELL,
     PASS
 }
 
@@ -57,6 +58,18 @@ public class Move
         this.player = player;
     }
 
+    // Constructor for spell move
+    public Move(MoveType moveType, Card card, Card cardTarget, GamePlayer player)
+    {
+        this.moveType = moveType;
+        this.card = card;
+        this.cardTarget = cardTarget;
+        this.player = player;
+    }
+
+
+
+    // Constructor for pass move
     public Move(MoveType moveType, GamePlayer player)
     {
         this.moveType = moveType;
@@ -75,6 +88,9 @@ public class Move
         }
         if (moveType == MoveType.ATTACK_PLAYER){
             target = $"{player.name} attacks {playerTarget.name} with {card.CardName}!";
+        }
+        if (moveType == MoveType.SPELL){
+            target = $"{player.name} uses {card.CardName} on {cardTarget.CardName}!";
         }
         return str+target;
     }

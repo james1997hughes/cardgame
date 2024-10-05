@@ -20,6 +20,7 @@ public class GamePlayer : MonoBehaviour
         hpBarTransform = transform.Find("HealthBarContainer");
         TextMeshProUGUI nameTextComponent = transform.Find("Name").Find("NameCanvas").Find("NameText").GetComponent<TextMeshProUGUI>();
         nameTextComponent.text = PlayerName;
+        hand.player = this; // Terrible and should be changed to initialize Cards, Hands, and Players properly
     }
 
     public void updateHpBar()

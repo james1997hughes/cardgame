@@ -220,7 +220,6 @@ public class Card : MonoBehaviour
     public virtual void SpellEffect(Card card)
     {
         //if spell effect used, discard card
-        parentHand.adjustSpellSlotCurrent(Cost);
         StartCoroutine(controller.KillCard(this));
     }
     public virtual void DiscardEffect()
@@ -502,15 +501,16 @@ public class Card : MonoBehaviour
             return;
  
         }
-
         if(controller.PlayerLane1Card != null && controller.PlayerLane1Card.gameObject.GetComponent<Collider2D>().bounds.Contains(releasePoint))
         {
-            SpellEffect(controller.PlayerLane1Card);
+            StartCoroutine(controller.executeMove(new Move(MoveType.SPELL, this, controller.PlayerLane1Card, this.parentHand.player)));
         }
         if(controller.PlayerLane2Card != null && controller.PlayerLane2Card.gameObject.GetComponent<Collider2D>().bounds.Contains(releasePoint))
         {
-            SpellEffect(controller.PlayerLane2Card);
+            StartCoroutine(controller.executeMove(new Move(MoveType.SPELL, this, controller.PlayerLane2Card, this.parentHand.player)));
         }
+        /*
+            For the future; if (card.isAttackSpell) etc.
         if(controller.EnemyLane1Card != null && controller.EnemyLane1Card.gameObject.GetComponent<Collider2D>().bounds.Contains(releasePoint))
         {
             SpellEffect(controller.EnemyLane1Card);
@@ -518,7 +518,7 @@ public class Card : MonoBehaviour
         if(controller.EnemyLane2Card != null && controller.EnemyLane2Card.gameObject.GetComponent<Collider2D>().bounds.Contains(releasePoint))
         {
             SpellEffect(controller.EnemyLane2Card);
-        }
+        }*/
     }
 
     void OnMouseEnter()

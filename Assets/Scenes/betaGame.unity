@@ -5223,8 +5223,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 401829919}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -14.103658, y: 0.71747655, z: 2.0742207}
-  m_LocalScale: {x: 1.6666665, y: 1.6666665, z: 1}
+  m_LocalPosition: {x: -14.103659, y: 0.7174766, z: 2.0742207}
+  m_LocalScale: {x: 1.6666666, y: 1.6666666, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 237890861}
@@ -8780,6 +8780,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 854584592}
     m_Modifications:
+    - target: {fileID: 1204826338700151416, guid: 825e3a3db8f47c64fbd5559469d92071, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 1992006d8df244f42a1cda4de64d171f, type: 2}
+    - target: {fileID: 1204826338700151416, guid: 825e3a3db8f47c64fbd5559469d92071, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5327502418432977815, guid: 1992006d8df244f42a1cda4de64d171f, type: 2}
     - target: {fileID: 1446439900292696585, guid: 825e3a3db8f47c64fbd5559469d92071, type: 3}
       propertyPath: m_Sprite
       value: 

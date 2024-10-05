@@ -17,14 +17,6 @@ Mon_Deer
 Spell_Sliceup
 Spell_Sliceup
 Spell_Sliceup
-Spell_Mimic
-Spell_Mimic
-Spell_Mimic
-Spell_Fire
-Spell_Fire
-Spell_Fire
-Spell_Overgrowth
-Spell_Overgrowth
-Spell_Overgrowth
+Spell_Shield
 Spell_Shield
 Spell_Shield

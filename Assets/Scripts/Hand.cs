@@ -18,6 +18,7 @@ public class Hand : MonoBehaviour
     SpellSlots spellSlotContainer;
 
     public bool playerControlled;
+    public GamePlayer player;
     public int maxCardsInHand;
 
     public int numberCardsDrawn;
@@ -80,34 +81,43 @@ public class Hand : MonoBehaviour
         }
     }
 
+    public Card getNextCard(){
+        if (cardsInDeck.Count > 0){
+            string poppedCard = cardsInDeck[0];
+            return (Card)Activator.CreateInstance(Type.GetType("Cards." + poppedCard));
+        } else{
+            return null;
+        }
+    }
+
     public void drawCards(int i)
     {
         if (cardsInDeck.Count > 0)
         {
             for (int k = 0; k < i; k++)
             {
-                int lastIndex = cardsInDeck.Count - 1; // Index of the last item
-                string poppedCard = cardsInDeck[lastIndex]; // Retrieve the last card
-                cardsInDeck.RemoveAt(lastIndex);
+                //int lastIndex = cardsInDeck.Count - 1; // Index of the last item
+                string poppedCard = cardsInDeck[0]; // Retrieve the last card
+                cardsInDeck.RemoveAt(0);
                 numberCardsDrawn += 1;
                 GameObject cardGO = Instantiate(cardPrefab, new Vector2(0, 0), Quaternion.identity);
                 var added = (Card)cardGO.AddComponent(Type.GetType("Cards." + poppedCard));
-                Debug.Log(poppedCard);
+                //Debug.Log(poppedCard);
                 int index = cardsInHand.Count - 1;
                 if (added.isSpell)
                 {
                     if (added.isReactive)
                     {
-                    cardGO.transform.Find("Card_Front").Find("Symbol").GetComponent<SpriteRenderer>().sprite = reactiveSymbol;
+                        cardGO.transform.Find("Card_Front").Find("Symbol").GetComponent<SpriteRenderer>().sprite = reactiveSymbol;
                     }
-                cardGO.transform.Find("Card_Front").Find("Card_Base").GetComponent<SpriteRenderer>().sprite = spellCardSprite;
-                Destroy(cardGO.transform.Find("Card_Front").Find("Card_Stats").gameObject);
-                added.setProps(index, this, game, stonePrefab, numberCardsDrawn);
+                    cardGO.transform.Find("Card_Front").Find("Card_Base").GetComponent<SpriteRenderer>().sprite = spellCardSprite;
+                    Destroy(cardGO.transform.Find("Card_Front").Find("Card_Stats").gameObject);
+                    added.setProps(index, this, game, stonePrefab, numberCardsDrawn);
                 }
                 
                 added.setProps(index, this, game, grassPrefab, numberCardsDrawn);
                 added.sortingGroup = added.gameObject.GetComponent<SortingGroup>();
-                Debug.Log(added.sortingGroup.sortingLayerName);
+                //Debug.Log(added.sortingGroup.sortingLayerName);
                 added.sortingGroup.sortingLayerName = "cards_rest";
                 added.sortingGroup.sortingOrder = numberCardsDrawn;
                 added.fixText();
@@ -119,7 +129,7 @@ public class Hand : MonoBehaviour
 
     void resetCardsInHand()
     {
-        Debug.Log("Resetting cards");
+        //Debug.Log("Resetting cards");
         foreach (Card card in cardsInHand)
         {
             card.resetCard();

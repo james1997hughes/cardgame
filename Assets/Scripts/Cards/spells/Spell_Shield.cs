@@ -46,13 +46,9 @@ namespace Cards
         }
         public override void SpellEffect(Card card)
         {
-        // increase def int by 1 when played, reduce mana by spell cost
-        // card it goes over the boundary off
-        // check is monster
-        card.Def++;
-        Debug.Log("OOo CHEEKY");
-        Debug.Log("Card defense:" + card.Def);
-        base.SpellEffect(card);
+            card.StatModifiers["Def"]++;
+
+            base.SpellEffect(card);
         }
     }
 }
