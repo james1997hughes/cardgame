@@ -60,6 +60,5 @@ namespace Cards
             OnDiscardAudio = null;
             base.DiscardEffect();
         }
-
     }
 }

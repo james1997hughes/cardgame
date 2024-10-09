@@ -40,6 +40,7 @@ public class Card : MonoBehaviour
     public bool selected = false;
     public bool inHand = false;
     public bool inLane = false;
+    public bool isDiscarded = false;
 
     public Lane lane;
 
@@ -51,9 +52,9 @@ public class Card : MonoBehaviour
     GameObject UIGO;
     UI ui;
 
-
     // --Select Animation
     float speed = 15f;
+    public float discardSpeed=10;
     float lowery = -4.97f;
     float raisedy = -2.1f;
 
@@ -64,7 +65,8 @@ public class Card : MonoBehaviour
 
     public Vector3 viewScale = new Vector3(2f, 2f, 0f);
     // ^^Select Animation
-
+    public Vector3 dragScale = new Vector3(1f, 1f, 0f);
+    //draging animation^^ 
     //Gameobject components
     public BoxCollider2D boxCollider;
     public SortingGroup sortingGroup;
@@ -224,13 +226,22 @@ public class Card : MonoBehaviour
     }
     public virtual void DiscardEffect()
     {
+        Debug.Log("DiscardEffect being called");
         //Play audio - either default or specific
+        isDiscarded = true;
         audioSource.clip = OnDiscardAudio;
         audioSource.Play();
-
-        //Do other default discard behaviour
-
-    }
+        inHand = false;
+        if (parentHand.playerControlled)
+        {
+            restPosition = ui.discardLaneGO.transform.position;           
+        }
+        else{
+            restPosition = ui.enemyDiscardLaneGO.transform.position;
+        }
+        StartCoroutine(returnCardAnim());
+        resetStats();
+     }
 
     // Graphic & animation logic
     void SetupCardInPlay()
@@ -387,17 +398,17 @@ public class Card : MonoBehaviour
     }
     void Update()
     {
-        if (mouseDown && parentHand.playerControlled)
+        if (mouseDown && parentHand.playerControlled && !isDiscarded)
         {
-            if (Vector3.Distance(Input.mousePosition, mousePosAtDown) > 10)
-            {
+            // if (Vector3.Distance(Input.mousePosition, mousePosAtDown) > 10)
+            //{
                 sortingGroup.sortingLayerName = "cards_active";
                 fixText();
                 dragging = true;
                 Vector3 screenPoint = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Camera.main.nearClipPlane));
                 Vector3 dragPos = new Vector3(screenPoint.x, screenPoint.y, transform.position.z);
                 gameObject.transform.position = dragPos;
-            }
+            // }
         }
 
         else if (dragging && !returning)
@@ -527,9 +538,13 @@ public class Card : MonoBehaviour
         {
             if (inHand && !selected && !dragging && !returning && parentHand.playerControlled)
             {
+                // if (restPosition != ui.discardLaneGO.transform.position) //tried  to make it so cards arent bigger when hovered over the discard lane
+                // {                
                 restPosition.y = raisedy;
                 gameObject.transform.localScale = viewScale;
                 StartCoroutine(returnCardAnim());
+                // }
+                // else {}
             }
         }
     }
@@ -545,7 +560,6 @@ public class Card : MonoBehaviour
                     gameObject.transform.localScale = defaultScale;
                     StartCoroutine(returnCardAnim());
                 }
-
             }
         }
 
@@ -554,29 +568,31 @@ public class Card : MonoBehaviour
     {
         mouseDown = true;
         mousePosAtDown = Input.mousePosition;
+        gameObject.transform.localScale = dragScale; //this line added
 
     }
     void OnMouseUp()
     {
         mouseDown = false;
-        mousePosAtDown = new Vector3(0, 0, 5); //Reset
+        mousePosAtDown = new Vector3(0, 0, 5); //Rese
+        gameObject.transform.localScale = defaultScale;
 
     }
-    void OnMouseUpAsButton()
-    {
-        if (inHand && parentHand.playerControlled)
-        {
-            if (!selected && !dragging) // Select a card
-            {
-                selected = true;
-                SelectEffect();
-                return;
-            }
-            if (selected && !dragging) // Deselect a card
-            {
-                selected = false;
-                return;
-            }
-        }
-    }
+    // void OnMouseUpAsButton()
+    // {
+    //     if (inHand && parentHand.playerControlled)
+    //     {
+    //         if (!selected && !dragging) // Select a card
+    //         {
+    //             selected = true;
+    //             SelectEffect();
+    //             return;
+    //         }
+    //         if (selected && !dragging) // Deselect a card
+    //         {
+    //             selected = false;
+    //             return;
+    //         }
+    //     }
+    // }
 }
