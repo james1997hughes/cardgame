@@ -60,6 +60,7 @@ namespace Cards
         public override void DiscardEffect()
         {
             base.DiscardEffect();
+            Debug.Log("Deer discardEffect");
         }
 
     }

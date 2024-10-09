@@ -52,5 +52,9 @@ namespace Cards
             Debug.Log("Card Atk:" + card.MonAtk);
             base.SpellEffect(card);
         }
+        public override void DiscardEffect()
+        {
+            base.DiscardEffect();
+        }
     }
 }

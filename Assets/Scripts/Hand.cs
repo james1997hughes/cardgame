@@ -115,7 +115,7 @@ public class Hand : MonoBehaviour
                     added.setProps(index, this, game, stonePrefab, numberCardsDrawn);
                 }
                 
-                added.setProps(index, this, game, grassPrefab, numberCardsDrawn);
+                added.setProps(index, this, game, grassPrefab, numberCardsDrawn); // change this grass prefab to be stone prefab on spells
                 added.sortingGroup = added.gameObject.GetComponent<SortingGroup>();
                 //Debug.Log(added.sortingGroup.sortingLayerName);
                 added.sortingGroup.sortingLayerName = "cards_rest";

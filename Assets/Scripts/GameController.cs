@@ -111,16 +111,17 @@ public class GameController : MonoBehaviour
     }
     public void tryDiscard(Card card, Hand hand)
     {
-        card.transform.Find("Card_Front").gameObject.SetActive(false);
-        card.transform.Find("Card_Back").gameObject.SetActive(true);
-        card.restPosition = card.parentHand.playerControlled ? ui.discardLaneGO.transform.position : ui.enemyDiscardLaneGO.transform.position;
+        //card.transform.Find("Card_Front").gameObject.SetActive(false);
+        //card.transform.Find("Card_Back").gameObject.SetActive(true);
+        // card.restPosition = card.parentHand.playerControlled ? ui.discardLaneGO.transform.position : ui.enemyDiscardLaneGO.transform.position;
         card.DiscardEffect();
 
         if (!hand.cardsInHand.Remove(card))
         {
             Debug.Log("Card failed to remove!");
         }
-        hand.drawCards(1);
+        // hand.drawCards(1); //enable when debugging and want to mill through cards.
+        // Mill is a term which originated in Magic: the Gathering to refer to an effect which moves cards from the top of a players library into their graveyard for the purpose of reducing the size of your opponent's deck as an alternate win condition. Over time this was expanded in various ways across many games.
     }
     public void tryPlayCard(Card card, Hand hand, Lanes lane)
     {
@@ -315,12 +316,13 @@ public class GameController : MonoBehaviour
             }
             card.lane.card = null;
         }
-        try {
-            Destroy(card.gameObject);
+         try {
+            tryDiscard(card, card.parentHand);
             // Live card stuff, such as playing an animation or sound.
             // Should instead check if the card has a gameObject somehow
         } catch (Exception e){
-        }
+}
+        
         yield return null;
     }
 
