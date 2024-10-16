@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -27,6 +28,7 @@ public class Card : MonoBehaviour
     public bool isSpell = false;
     public bool canBeTrap = false;
     public bool isReactive = false;
+private bool isInspected = false;
     public int PositionInHand;
     public Sprite subjectSprite;
     public GameObject portraitBackground;
@@ -36,6 +38,7 @@ public class Card : MonoBehaviour
 
     Vector3 InitialSpawn;
     public Vector3 restPosition;
+    private Vector3 oldPosition;
 
     public bool selected = false;
     public bool inHand = false;
@@ -64,6 +67,7 @@ public class Card : MonoBehaviour
     public Vector3 defaultScale = new Vector3(0.83f, 0.83f, 1f);
 
     public Vector3 viewScale = new Vector3(2f, 2f, 0f);
+    public Vector3 clickScale = new Vector3(3f, 3f, 0f);
     // ^^Select Animation
     public Vector3 dragScale = new Vector3(1f, 1f, 0f);
     //draging animation^^ 
@@ -398,7 +402,7 @@ public class Card : MonoBehaviour
     }
     void Update()
     {
-        if (mouseDown && parentHand.playerControlled && !isDiscarded)
+        if (mouseDown && parentHand.playerControlled && !isDiscarded && !isInspected)
         {
             // if (Vector3.Distance(Input.mousePosition, mousePosAtDown) > 10)
             //{
@@ -569,30 +573,33 @@ public class Card : MonoBehaviour
         mouseDown = true;
         mousePosAtDown = Input.mousePosition;
         gameObject.transform.localScale = dragScale; //this line added
-
     }
     void OnMouseUp()
     {
-        mouseDown = false;
-        mousePosAtDown = new Vector3(0, 0, 5); //Rese
-        gameObject.transform.localScale = defaultScale;
+        if (isInspected){
+        }
+        else{
+            mouseDown = false;
+            mousePosAtDown = new Vector3(0, 0, 5); //Reset
+            gameObject.transform.localScale = defaultScale;
+        }
 
     }
-    // void OnMouseUpAsButton()
-    // {
-    //     if (inHand && parentHand.playerControlled)
-    //     {
-    //         if (!selected && !dragging) // Select a card
-    //         {
-    //             selected = true;
-    //             SelectEffect();
-    //             return;
-    //         }
-    //         if (selected && !dragging) // Deselect a card
-    //         {
-    //             selected = false;
-    //             return;
-    //         }
-    //     }
-    // }
+    void OnMouseUpAsButton()
+    {
+        if(inLane && parentHand.playerControlled && !isInspected) {
+            dragging = false;
+            isInspected = true;
+            gameObject.transform.localScale = clickScale;
+            oldPosition = restPosition;
+            gameObject.transform.position = new Vector3(0f,-0f,0f);
+            restPosition = new Vector3(0f, 0f, 0f);
+        }
+        else{
+            isInspected = false;
+            restPosition = oldPosition;
+            StartCoroutine(returnCardAnim());
+            // NEED TO ADD LOGIC HERE TO INSPECT ENEMY CARDS, AND ALSO ROTATE THEM THE CORRECT WAY
+    }
+    }
 }

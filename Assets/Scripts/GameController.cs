@@ -206,13 +206,25 @@ public class GameController : MonoBehaviour
             {
                 case Lanes.MONSTER_LANE_1:
                     card.inLane = true;
-                    card.restPosition = card.parentHand.playerControlled ? ui.monLane1GO.transform.position : ui.enemyMonLane1GO.transform.position;
+                    if (card.parentHand.playerControlled) {
+                        card.restPosition = ui.monLane1GO.transform.position;
+                        //spinny thing
+                    } else{
+                        card.restPosition = ui.enemyMonLane1GO.transform.position;
+                        card.gameObject.transform.Rotate(0f,0f,180f);
+                    }
                     card.parentHand.adjustSpellSlotCurrent(card.Cost);
                     card.PlayEffect();
                     break;
                 case Lanes.MONSTER_LANE_2:
                     card.inLane = true;
-                    card.restPosition = card.parentHand.playerControlled ? ui.monLane2GO.transform.position : ui.enemyMonLane2GO.transform.position;
+                    if (card.parentHand.playerControlled) {
+                        card.restPosition = ui.monLane2GO.transform.position;
+                        //spinny thing
+                    } else{
+                        card.restPosition = ui.enemyMonLane2GO.transform.position;
+                        card.gameObject.transform.Rotate(0f,0f,180f);
+                    }
                     card.parentHand.adjustSpellSlotCurrent(card.Cost);
                     card.PlayEffect();
                     break;
@@ -440,8 +452,8 @@ public class GameController : MonoBehaviour
                 }
                 else if (turnPhase == TurnPhase.SUMMON)
                 {
-                    yield return new WaitForSeconds(1.5f);
                     yield return StartCoroutine(EnemyMove());
+                    yield return new WaitForSeconds(1.5f);
                     yield return StartCoroutine(nextPhaseCoroutine());                      //ATTACK PHASE       
                 }
                 else if (turnPhase == TurnPhase.ATTACK)
